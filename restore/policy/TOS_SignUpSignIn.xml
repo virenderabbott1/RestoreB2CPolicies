@@ -1,17 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestorestage.onmicrosoft.com" PolicyId="B2C_1A_signup_signin" PublicPolicyUri="http://dtsrestorestage.onmicrosoft.com/B2C_1A_signup_signin" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_TOS_SUSI  
+" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_TermsOfService" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
 
   <BasePolicy>
-    <TenantId>dtsrestorestage.onmicrosoft.com</TenantId>
+    <TenantId>{Settings:Tenant}</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
-    
-    <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
-    
+    <DefaultUserJourney ReferenceId="TermsOfServiceSignUpOrSignIn" />
     <UserJourneyBehaviors>
       <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="233a5cc6-4986-474c-bb68-9d351a2bf8ea" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
     </UserJourneyBehaviors>
@@ -22,11 +20,17 @@
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
+        <!--Sample: Additional claims are not required and were used for testing purposes only -->
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="policyTOSversion" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
         <OutputClaim ClaimTypeReferenceId="surname" />
         <OutputClaim ClaimTypeReferenceId="email" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
-
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<TrustFrameworkPolicy 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" 
-  PolicySchemaVersion="0.3.0.0" 
-  TenantId="dtsrestore.onmicrosoft.com" 
-  PolicyId="B2C_1A_TrustFrameworkExtensions" 
-  PublicPolicyUri="http://dtsrestore.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions" DeploymentMode="Development">
-  
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestore.onmicrosoft.com" PolicyId="B2C_1A_TrustFrameworkExtensions" PublicPolicyUri="http://dtsrestore.onmicrosoft.com/B2C_1A_TrustFrameworkExtensions" DeploymentMode="Development">
+
   <BasePolicy>
     <TenantId>dtsrestore.onmicrosoft.com</TenantId>
     <PolicyId>B2C_1A_TrustFrameworkBase</PolicyId>
@@ -18,11 +13,10 @@
 
   <ClaimsProviders>
 
-
     <ClaimsProvider>
       <DisplayName>Local Account SignIn</DisplayName>
       <TechnicalProfiles>
-         <TechnicalProfile Id="login-NonInteractive">
+        <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <Item Key="client_id">0f5b671a-c73e-441c-9b6c-96a500c06338</Item>
             <Item Key="IdTokenAudience">af1b5086-c56c-4c04-98ab-7308a67ea8b5</Item>
@@ -37,7 +31,7 @@
 
   </ClaimsProviders>
 
-    <!--UserJourneys>
+  <!--UserJourneys>
 	
 	</UserJourneys-->
 
