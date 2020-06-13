@@ -1,7 +1,6 @@
 <TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestorestageprd.onmicrosoft.com" PolicyId="B2C_1A_TOS_TrustFrameworkExtensions  
-" PublicPolicyUri="http://dtsrestorestageprd.onmicrosoft.com/B2C_1A_TermsOfService" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestorestageprd.onmicrosoft.com" PolicyId="B2C_1A_TOS_TrustFrameworkExtensions" PublicPolicyUri="http://dtsrestorestageprd.onmicrosoft.com/B2C_1A_TOS_TrustFrameworkExtensions" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
 
   <BasePolicy>
     <TenantId>dtsrestorestageprd.onmicrosoft.com</TenantId>
@@ -17,7 +16,7 @@
         <DataType>string</DataType>
         <UserInputType>CheckboxMultiSelect</UserInputType>
         <Restriction>
-          <Enumeration Text="" Value="v16" />
+          <Enumeration Text="" Value="v01" />
         </Restriction>
       </ClaimType>
 
@@ -100,12 +99,12 @@
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <!--Sample action required: update the client_id and resource_id with your tenant's information-->
-            <Item Key="client_id">00000000-0000-0000-0000-000000000000</Item>
-            <Item Key="IdTokenAudience">11111111-1111-1111-1111-111111111111</Item>
+            <Item Key="client_id">38a414e0-5555-4583-bbea-d355b74dd911</Item>
+            <Item Key="IdTokenAudience">af1b5086-c56c-4c04-98ab-7308a67ea8b5</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="00000000-0000-0000-0000-000000000000" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="11111111-1111-1111-1111-111111111111" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="38a414e0-5555-4583-bbea-d355b74dd911" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="af1b5086-c56c-4c04-98ab-7308a67ea8b5" />
           </InputClaims>
         </TechnicalProfile>
 
@@ -121,10 +120,10 @@
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" />
-            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="v16" />
+            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="v01" />
           </InputClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="v16" />
+            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="v01" />
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
@@ -162,10 +161,12 @@
         <!--Sample action: Update values in appID and ClientID; this enables extensionAttributes. Use the MS Docs for guidance: https://docs.microsoft.com/en-us/azure/active-directory-b2c/active-directory-b2c-create-custom-attributes-profile-edit-custom-->
         <TechnicalProfile Id="AAD-Common">
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <!-- VC start: not needed as itis moved to TFBase.xml 
           <Metadata>
             <Item Key="ApplicationObjectId">00000000-0000-0000-0000-000000000000</Item>
             <Item Key="ClientId">11111111-1111-1111-1111-111111111111</Item>
           </Metadata>
+          VC end !--> 
         </TechnicalProfile>
       </TechnicalProfiles>
     </ClaimsProvider>
@@ -306,34 +307,6 @@
       </OrchestrationSteps>
       <ClientDefinition ReferenceId="DefaultWeb" />
     </UserJourney>
+
   </UserJourneys>
-
-  <RelyingParty>
-    <DefaultUserJourney ReferenceId="TermsOfServiceSignUpOrSignIn" />
-
-    <UserJourneyBehaviors>
-      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="233a5cc6-4986-474c-bb68-9d351a2bf8ea" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
-    </UserJourneyBehaviors>
-
-    <TechnicalProfile Id="PolicyProfile">
-      <DisplayName>PolicyProfile</DisplayName>
-      <Protocol Name="OpenIdConnect" />
-      <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="displayName" />
-        <OutputClaim ClaimTypeReferenceId="givenName" />
-        <!--Sample: Additional claims are not required and were used for testing purposes only -->
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" />
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="policyTOSversion" />
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
-        <OutputClaim ClaimTypeReferenceId="surname" />
-        <OutputClaim ClaimTypeReferenceId="email" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
-      </OutputClaims>
-      <SubjectNamingInfo ClaimType="sub" />
-    </TechnicalProfile>
-  </RelyingParty>
 </TrustFrameworkPolicy>
