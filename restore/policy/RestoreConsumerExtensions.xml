@@ -13,6 +13,16 @@
         <DataType>string</DataType>
         <UserHelpText>This is the captured at the time of signup.</UserHelpText>
       </ClaimType>
+      <ClaimType Id="termsAndConditionText">
+        <DisplayName>Terms and Conditions</DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>      
+      <ClaimType Id="testConsentPrivacyText">
+        <DisplayName>Test, Consent and Privacy </DisplayName>
+        <DataType>string</DataType>
+        <UserInputType>Readonly</UserInputType>
+      </ClaimType>
       <ClaimType Id="dateOfBirth">
         <DisplayName>Date Of Birth</DisplayName>
         <DataType>date</DataType>
@@ -60,6 +70,19 @@
     </ClaimsSchema>
 
     <ClaimsTransformations>
+      <ClaimsTransformation Id="CreateDisplayNameFromFirstNameAndLastName" TransformationMethod="FormatStringMultipleClaims">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="givenName" TransformationClaimType="inputClaim1" />
+          <InputClaim ClaimTypeReferenceId="surName" TransformationClaimType="inputClaim2" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringFormat" DataType="string" Value="{0} {1}" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
+
       <ClaimsTransformation Id="GetCurrentDateTime" TransformationMethod="GetCurrentDateTime">
         <OutputClaims>
           <OutputClaim ClaimTypeReferenceId="currentTime" TransformationClaimType="currentDateTime" />
@@ -133,6 +156,55 @@
     </ClaimsProvider>
 
     <ClaimsProvider>
+      <DisplayName>Terms and Conditions </DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="termsConditionsPage">
+          <DisplayName>Initiate Terms Conditions Page For Local Account</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+            <Item Key="language.button_continue">Agree and Continue </Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <IncludeInSso>false</IncludeInSso>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="termsAndConditionText" />
+          </DisplayClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="termsAndConditionText" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+    <ClaimsProvider>
+      <DisplayName>Test, Consent and Privacy </DisplayName>
+      <TechnicalProfiles>
+        <TechnicalProfile Id="testConsentPrivacyPage">
+          <DisplayName>Initiate Test Consent Privacy Page For Local Account</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+            <Item Key="language.button_continue">Agree and Continue </Item>
+          </Metadata>
+          <CryptographicKeys>
+            <Key Id="issuer_secret" StorageReferenceId="B2C_1A_TokenSigningKeyContainer" />
+          </CryptographicKeys>
+          <IncludeInSso>false</IncludeInSso>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="testConsentPrivacyText" />
+          </DisplayClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="testConsentPrivacyText" />
+          </OutputClaims>
+        </TechnicalProfile>
+      </TechnicalProfiles>
+    </ClaimsProvider>
+
+
+    <ClaimsProvider>
       <DisplayName>Local Account</DisplayName>
       <TechnicalProfiles>
         <!-- read the last time the user consented -->
@@ -187,26 +259,28 @@
             <InputClaimsTransformation ReferenceId="GetCurrentDateTime" />
           </InputClaimsTransformations>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="email" />
             <InputClaim ClaimTypeReferenceId="extension_termsOfUseConsentChoice" DefaultValue="AgreeToTermsOfUseConsentNo" />
           </InputClaims>
+
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="objectId" />
+            <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
+            <OutputClaim ClaimTypeReferenceId="dateOfBirth" Required="true" />
+
             <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="email" Required="true" />
             <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
             <!-- <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" /> -->
             <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
             <OutputClaim ClaimTypeReferenceId="authenticationSource" />
             <OutputClaim ClaimTypeReferenceId="newUser" />
-
-            <!-- Optional claims, to be collected from the user -->
-            <OutputClaim ClaimTypeReferenceId="displayName" />
-            <OutputClaim ClaimTypeReferenceId="givenName" />
-            <OutputClaim ClaimTypeReferenceId="surName" />
-            <OutputClaim ClaimTypeReferenceId="extension_termsOfUseConsentChoice" Required="true" />
             <OutputClaim ClaimTypeReferenceId="userRole" DefaultValue="Consumer" />
-           
           </OutputClaims>
+
+          <OutputClaimsTransformations>
+            <OutputClaimsTransformation ReferenceId="CreateDisplayNameFromFirstNameAndLastName" />
+          </OutputClaimsTransformations>
+
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonEmail" />
           </ValidationTechnicalProfiles>
@@ -217,10 +291,10 @@
         <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
           <PersistedClaims>
             <PersistedClaim ClaimTypeReferenceId="currentTime" PartnerClaimType="extension_termsOfUseConsentDateTime"/>
-            <PersistedClaim ClaimTypeReferenceId="extension_termsOfUseConsentChoice" />
+            <PersistedClaim ClaimTypeReferenceId="extension_termsOfUseConsentChoice" DefaultValue="true" />
           </PersistedClaims>
         </TechnicalProfile>
-        
+
         <TechnicalProfile Id="SelfAsserted-LocalAccountSignin-Email">
           <DisplayName>Local Account Signin</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -295,12 +369,34 @@
             </Precondition>
           </Preconditions>
           <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSignUp" TechnicalProfileReferenceId="LocalAccountSignUpWithEmailOnly" />
+            <ClaimsExchange Id="LocalAccountSignUpStep1" TechnicalProfileReferenceId="termsConditionsPage" />
           </ClaimsExchanges>
         </OrchestrationStep>
-         <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent
-          in the token. -->
         <OrchestrationStep Order="2" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSignUpStep2" TechnicalProfileReferenceId="testConsentPrivacyPage" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <OrchestrationStep Order="3" Type="ClaimsExchange">
+          <Preconditions>
+            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+              <Value>objectId</Value>
+              <Action>SkipThisOrchestrationStep</Action>
+            </Precondition>
+          </Preconditions>
+          <ClaimsExchanges>
+            <ClaimsExchange Id="LocalAccountSignUpStep4" TechnicalProfileReferenceId="LocalAccountSignUpWithEmailOnly" />
+          </ClaimsExchanges>
+        </OrchestrationStep>
+        <!-- This step reads any user attributes that we may not have received when authenticating using ESTS so they can be sent
+          in the token. -->
+        <OrchestrationStep Order="4" Type="ClaimsExchange">
           <Preconditions>
             <!-- Add condition to not execute this step for sign up scenario based on newUser claim -->
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -314,7 +410,7 @@
         </OrchestrationStep>
 
         <!-- Display Terms of Use consent page for any SignIn scenario based on termsOfUseConsentRequired claim -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
+        <OrchestrationStep Order="5" Type="ClaimsExchange">
           <Preconditions>
             <!-- Add condition to not execute this step for sign up scenario based on newUser claim -->
             <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
@@ -331,7 +427,7 @@
             <ClaimsExchange Id="ShowToUConsentPageForNewUser" TechnicalProfileReferenceId="SelfAsserted-Input-ToU-SignIn" />
           </ClaimsExchanges>
         </OrchestrationStep>
-        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+        <OrchestrationStep Order="6" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
       </OrchestrationSteps>
     </UserJourney>
 
