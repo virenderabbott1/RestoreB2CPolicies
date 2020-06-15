@@ -8,8 +8,7 @@
     <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
   </BasePolicy>
 
-  <RelyingParty>
-    
+  <RelyingParty>    
     <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
     
     <UserJourneyBehaviors>

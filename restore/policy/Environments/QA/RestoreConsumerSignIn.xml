@@ -1,0 +1,29 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestoreqa.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSI" PublicPolicyUri="http://dtsrestoreqa.onmicrosoft.com/B2C_1A_RestoreConsumerSI" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+  <BasePolicy>
+    <TenantId>dtsrestoreqa.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_RestoreConsumerExtensions</PolicyId>
+  </BasePolicy>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="ConsumerSignInWithoutEmailVerification" />
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <OutputClaim ClaimTypeReferenceId="surName" />
+        <OutputClaim ClaimTypeReferenceId="dateOfBirth" />
+        <OutputClaim ClaimTypeReferenceId="userRole" />
+        <OutputClaim ClaimTypeReferenceId="extension_termsOfUseConsentDateTime" />
+        <OutputClaim ClaimTypeReferenceId="currentTime" />
+        <OutputClaim ClaimTypeReferenceId="termsOfUseConsentRequired" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>

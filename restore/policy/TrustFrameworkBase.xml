@@ -21,7 +21,6 @@
 
       <!-- SECTION I: Claims required for user journeys to work properly -->
 
-      <!-- VC start: Not needed
       <ClaimType Id="socialIdpUserId">
         <DisplayName>Username</DisplayName>
         <DataType>string</DataType>
@@ -31,8 +30,7 @@
           <Pattern RegularExpression="^[a-zA-Z0-9]+[a-zA-Z0-9_-]*$" HelpText="The username you provided is not valid. It must begin with an alphabet or number and can contain alphabets, numbers and the following symbols: _ -" />
         </Restriction>
       </ClaimType>
-      :VC end -->
-
+      
       <ClaimType Id="tenantId">
         <DisplayName>User's Object's Tenant ID</DisplayName>
         <DataType>string</DataType>
@@ -221,53 +219,7 @@
         <DataType>string</DataType>
         <UserHelpText>Specifies whether the user was authenticated at Social IDP or local account.</UserHelpText>
       </ClaimType>
-
-      <!-- VC start: -->
-      <ClaimType Id="dateOfBirth">
-        <DisplayName>Date Of Birth</DisplayName>
-        <DataType>date</DataType>
-        <UserHelpText>The date on which you were born.</UserHelpText>
-        <UserInputType>DateTimeDropdown</UserInputType>
-      </ClaimType>
-      <ClaimType Id="phoneNumber">
-        <DisplayName>Phone Number</DisplayName>
-        <DataType>string</DataType>
-        <Mask Type="Simple">XXX-XXX-</Mask>
-        <UserHelpText>Your telephone number.</UserHelpText>
-      </ClaimType>
-      <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
-      <ClaimType Id="AgreedToTermsOfService">
-        <DisplayName>Agreed To Terms Of Service</DisplayName>
-        <DataType>string</DataType>
-        <UserInputType>CheckboxMultiSelect</UserInputType>
-        <Restriction>
-          <Enumeration Text="" Value="{Settings:AgreedToTermsOfServiceVersionId}" />
-        </Restriction>
-      </ClaimType>
-
-      <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
-      <ClaimType Id="extension_AgreedToTermsOfService">
-        <DisplayName>This is the current business Terms of Service version</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-      </ClaimType>
-
-      <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
-      <ClaimType Id="policyTOSversion">
-        <DisplayName>This is the current business Terms of Service version</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-      </ClaimType>
-
-      <!--Sample: This is a claim created dynamically for logic purposes only. It is used to trigger an OrchestrationStep that presents a
-      TOS page to the end user during Sign-in flows only -->
-      <ClaimType Id="renewalTOSrequired">
-        <DisplayName>This variable states whether TOS requires to be renewed</DisplayName>
-        <DataType>boolean</DataType>
-        <AdminHelpText>This variable states whether TOS requires to be renewed</AdminHelpText>
-      </ClaimType>
-      <!-- VC end -->
-
+            
       <!-- SECTION II: Claims required to pass on special parameters (including some query string parameters) to other claims providers -->
 
       <ClaimType Id="nca">
@@ -346,35 +298,7 @@
         <InputParameters>
           <InputParameter Id="valueToCompareTo" DataType="boolean" Value="true" />
         </InputParameters>
-      </ClaimsTransformation>
-      <!-- VC start: -->
-      <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTermsOfService)
-      equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
-      <ClaimsTransformation Id="IsTermsOfServiceRequired" TransformationMethod="CompareClaims">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim1" />
-          <InputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" TransformationClaimType="inputClaim2" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
-          <InputParameter Id="ignoreCase" DataType="string" Value="true" />
-        </InputParameters>
-        <OutputClaims>
-          <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" TransformationClaimType="outputClaim" />
-        </OutputClaims>
-      </ClaimsTransformation>
-      <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
-      assigned to the AgreedToTermsOfService button. If not selected, then "did not accept" value will be assigned to it.-->
-      <ClaimsTransformation Id="AssertTOSHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
-        <InputClaims>
-          <InputClaim ClaimTypeReferenceId="AgreedToTermsOfService" TransformationClaimType="inputClaim1" />
-          <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim2" />
-        </InputClaims>
-        <InputParameters>
-          <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-        </InputParameters>
-      </ClaimsTransformation>
-      <!-- VC end -->
+      </ClaimsTransformation>      
     </ClaimsTransformations>
 
     <ClientDefinitions>
@@ -871,92 +795,5 @@
       </TechnicalProfiles>
     </ClaimsProvider>
   </ClaimsProviders>
-
-  <UserJourneys>
-
-    <UserJourney Id="SignUpOrSignIn">
-      <OrchestrationSteps>
-
-        <OrchestrationStep Order="1" Type="CombinedSignInAndSignUp" ContentDefinitionReferenceId="api.signuporsignin">
-          <ClaimsProviderSelections>
-            <ClaimsProviderSelection ValidationClaimsExchangeId="LocalAccountSigninEmailExchange" />
-          </ClaimsProviderSelections>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <Preconditions>
-            <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
-              <Value>objectId</Value>
-              <Action>SkipThisOrchestrationStep</Action>
-            </Precondition>
-          </Preconditions>
-          <ClaimsExchanges>
-            <ClaimsExchange Id="SignUpWithLogonEmailExchange" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <!-- This step reads any user attributes that we may not have received when in the token. -->
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="4" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-    <UserJourney Id="ProfileEdit">
-      <OrchestrationSteps>
-
-        <OrchestrationStep Order="1" Type="ClaimsProviderSelection" ContentDefinitionReferenceId="api.idpselections">
-          <ClaimsProviderSelections>
-            <ClaimsProviderSelection TargetClaimsExchangeId="LocalAccountSigninEmailExchange" />
-          </ClaimsProviderSelections>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="LocalAccountSigninEmailExchange" TechnicalProfileReferenceId="SelfAsserted-LocalAccountSignin-Email" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-
-        <OrchestrationStep Order="4" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="B2CUserProfileUpdateExchange" TechnicalProfileReferenceId="SelfAsserted-ProfileUpdate" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="5" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-    <UserJourney Id="PasswordReset">
-      <OrchestrationSteps>
-        <OrchestrationStep Order="1" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="PasswordResetUsingEmailAddressExchange" TechnicalProfileReferenceId="LocalAccountDiscoveryUsingEmailAddress" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="2" Type="ClaimsExchange">
-          <ClaimsExchanges>
-            <ClaimsExchange Id="NewCredentials" TechnicalProfileReferenceId="LocalAccountWritePasswordUsingObjectId" />
-          </ClaimsExchanges>
-        </OrchestrationStep>
-        <OrchestrationStep Order="3" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
-      </OrchestrationSteps>
-      <ClientDefinition ReferenceId="DefaultWeb" />
-    </UserJourney>
-
-  </UserJourneys>
+  
 </TrustFrameworkPolicy>

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestoreqa.onmicrosoft.com" PolicyId="B2C_1A_TOS_SUSI" PublicPolicyUri="http://dtsrestoreqa.onmicrosoft.com/B2C_1A_TOS_SUSI" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
@@ -8,7 +9,7 @@
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="TermsOfServiceSignUpOrSignIn" />
+    <DefaultUserJourney ReferenceId="B2CSignUpOrSignInWithPasswordToU" />
 
     <UserJourneyBehaviors>
       <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="233a5cc6-4986-474c-bb68-9d351a2bf8ea" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
@@ -18,21 +19,19 @@
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
-        <!--Sample: Additional claims are not required and were used for testing purposes only -->
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" />
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="policyTOSversion" />
-        <!--Sample action Required: Remove after testing-->
-        <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
-        <OutputClaim ClaimTypeReferenceId="surname" />
-        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="surName" />
+        <OutputClaim ClaimTypeReferenceId="displayName" />                
+        <OutputClaim ClaimTypeReferenceId="newUser" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
-        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+        <OutputClaim ClaimTypeReferenceId="extension_termsOfUseConsentDateTime" />
+        <OutputClaim ClaimTypeReferenceId="currentTime" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="termsOfUseConsentRequired" />
+        
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
   </RelyingParty>
+
 </TrustFrameworkPolicy>
