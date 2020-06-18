@@ -7,7 +7,7 @@
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="ConsumerSignIn" />
+    <DefaultUserJourney ReferenceId="ConsumerSignInWithoutEmailVerification" />
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
@@ -17,10 +17,9 @@
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surName" />
-        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
-        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
-        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
-        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />
+        <OutputClaim ClaimTypeReferenceId="extension_termsOfUseConsentDateTime" />
+        <OutputClaim ClaimTypeReferenceId="currentTime" />
+        <OutputClaim ClaimTypeReferenceId="termsOfUseConsentRequired" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>

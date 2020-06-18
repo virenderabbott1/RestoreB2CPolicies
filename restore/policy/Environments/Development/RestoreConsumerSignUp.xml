@@ -3,26 +3,29 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestore.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSU" PublicPolicyUri="http://dtsrestore.onmicrosoft.com/B2C_1A_RestoreConsumerSU" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
   <BasePolicy>
     <TenantId>dtsrestore.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_RestoreConsumerExtensions</PolicyId>
+    <PolicyId>B2C_1A_RestoreConsumerSendGridExtensions</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="ConsumerSignUpWithoutEmailVerification" />
-    <TechnicalProfile Id="PolicyProfile">
-      <DisplayName>PolicyProfile</DisplayName>
+    <DefaultUserJourney ReferenceId="SignUpOrSignInCustomEmail"/>
+    <TechnicalProfile Id="HelloWorldPolicyProfile">
+      <DisplayName>Hello World Policy Profile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
         <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="newPassword" />
+        <OutputClaim ClaimTypeReferenceId="passwordText" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surName" />
         <OutputClaim ClaimTypeReferenceId="userRole" />
-        <OutputClaim ClaimTypeReferenceId="extension_termsOfUseConsentChoice" />
-        <OutputClaim ClaimTypeReferenceId="currentTime" />
-        
+        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
+        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
+        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
+        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />        
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
-  </RelyingParty>
+  </RelyingParty>  
 </TrustFrameworkPolicy>
