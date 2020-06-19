@@ -71,7 +71,7 @@
                     <Action Id="SendCode">
                         <ValidationClaimsExchange>
                             <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp" />
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" /> 
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" />
                         </ValidationClaimsExchange>
                     </Action>
                     <Action Id="VerifyCode">
@@ -176,10 +176,11 @@
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
-                    <DisplayClaims>
-                        <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
-                    </DisplayClaims>
-
+                    <!-- block this temporarily during testing - emailVerificationControl -->
+                    <!--<DisplayClaims>
+                            <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+                        </DisplayClaims>
+                    -->
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
@@ -312,8 +313,12 @@
                 <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
                 <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
                     <PersistedClaims>
-                        <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />                        
-                    </PersistedClaims>                    
+                        <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />
+                    </PersistedClaims>
                 </TechnicalProfile>
 
             </TechnicalProfiles>
