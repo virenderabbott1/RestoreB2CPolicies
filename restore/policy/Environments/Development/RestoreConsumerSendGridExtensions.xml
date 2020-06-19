@@ -35,7 +35,7 @@
                 </InputClaims>
                 <InputParameters>
                     <InputParameter Id="template_id" DataType="string" Value="d-83f9f8ed7a2a45bbb5ea99ad57d1f48c" />
-                    <InputParameter Id="from.email" DataType="string" Value="virender.choudhary@abbott.com" />
+                    <InputParameter Id="from.email" DataType="string" Value="restore@abbott.com" />
                     <InputParameter Id="personalizations.0.subject" DataType="string" Value="Restore account email verification code" />
                 </InputParameters>
                 <OutputClaims>
@@ -53,6 +53,8 @@
         </ClaimsTransformations>
         <ContentDefinitions>
             <ContentDefinition Id="api.localaccountsignup">
+                <!--<LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>-->
                 <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
             </ContentDefinition>
         </ContentDefinitions>
@@ -69,7 +71,7 @@
                     <Action Id="SendCode">
                         <ValidationClaimsExchange>
                             <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp" />
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" /> 
                         </ValidationClaimsExchange>
                     </Action>
                     <Action Id="VerifyCode">
@@ -174,10 +176,10 @@
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
-                    <!--  <DisplayClaims>
+                    <DisplayClaims>
                         <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
                     </DisplayClaims>
-                    -->
+
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
@@ -302,45 +304,16 @@
                         <OutputClaimsTransformation ReferenceId="SetTestConsentAndPrivacy_versionNoConsentedDateTime" />
                     </OutputClaimsTransformations>
                     <ValidationTechnicalProfiles>
-                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonEmailWithPasswordTextField" />
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonEmail" />
                     </ValidationTechnicalProfiles>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
                 </TechnicalProfile>
 
                 <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
-                <TechnicalProfile Id="AAD-UserWriteUsingLogonEmailWithPasswordTextField">
-                    <Metadata>
-                        <Item Key="Operation">Write</Item>
-                        <Item Key="RaiseErrorIfClaimsPrincipalAlreadyExists">true</Item>
-                    </Metadata>
-                    <IncludeInSso>false</IncludeInSso>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
-                    </InputClaims>
+                <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
                     <PersistedClaims>
-                        <!-- Required claims -->
-                        <PersistedClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" />
-                        <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
-                        <PersistedClaim ClaimTypeReferenceId="displayName" DefaultValue="unknown" />
-                        <PersistedClaim ClaimTypeReferenceId="passwordPolicies" DefaultValue="DisablePasswordExpiration" />
-                        <PersistedClaim ClaimTypeReferenceId="givenName" />
-                        <PersistedClaim ClaimTypeReferenceId="surname" />
-
-                        <!-- custom fields-->
-                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />
-                    </PersistedClaims>
-                    <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="objectId" />
-                        <OutputClaim ClaimTypeReferenceId="newUser" PartnerClaimType="newClaimsPrincipalCreated" />
-                        <OutputClaim ClaimTypeReferenceId="authenticationSource" DefaultValue="localAccountAuthentication" />
-                        <OutputClaim ClaimTypeReferenceId="userPrincipalName" />
-                        <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" />
-                    </OutputClaims>
-                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
+                        <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />                        
+                    </PersistedClaims>                    
                 </TechnicalProfile>
 
             </TechnicalProfiles>
