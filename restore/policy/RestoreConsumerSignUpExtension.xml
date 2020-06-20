@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestoreqa.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSendGridExtensions" PublicPolicyUri="http://dtsrestoreqa.onmicrosoft.com/B2C_1A_RestoreConsumerSendGridExtensions">
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreConsumerSignUpExtension" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreConsumerSignUpExtension">
     <BasePolicy>
-        <TenantId>dtsrestoreqa.onmicrosoft.com</TenantId>
-        <PolicyId>B2C_1A_RestoreConsumerExtensions</PolicyId>
+        <TenantId>{Settings:Tenant}</TenantId>
+        <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
     </BasePolicy>
     <BuildingBlocks>
         <ClaimsSchema>
+            <!--firstname, lastname, password etc claims are inhertited from base policy -->
+            <ClaimType Id="userRole">
+                <DisplayName>Role of the user </DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>Store user role </AdminHelpText>
+                <UserHelpText>It will be "Consumer" </UserHelpText>
+            </ClaimType>
+            <ClaimType Id="dateOfBirth">
+                <DisplayName>Date Of Birth</DisplayName>
+                <DataType>date</DataType>
+                <AdminHelpText>Store date of birth of the user </AdminHelpText>
+                <UserHelpText>The date on which you were born.</UserHelpText>
+                <UserInputType>DateTimeDropdown</UserInputType>
+            </ClaimType>
             <ClaimType Id="Otp">
                 <DisplayName>Secondary One-time password</DisplayName>
                 <DataType>string</DataType>
@@ -25,8 +39,51 @@
                 <DataType>string</DataType>
                 <UserHelpText>Temporarily store the password between steps</UserHelpText>
             </ClaimType>
+
+            <!-- additional cliam types to drive the logic-->
+            <ClaimType Id="currentDateTime">
+                <DisplayName>Current Date Time</DisplayName>
+                <DataType>dateTime</DataType>
+                <AdminHelpText>Current date time in UTC.</AdminHelpText>
+                <UserHelpText>Current date time in UTC.</UserHelpText>
+            </ClaimType>
+
+            <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
+            <ClaimType Id="AgreedToTermsOfService">
+                <DisplayName>Agreed To Terms Of Service</DisplayName>
+                <DataType>string</DataType>
+                <UserInputType>CheckboxMultiSelect</UserInputType>
+                <Restriction>
+                    <Enumeration Text="Agreed To Terms Of Service" Value="{Settings:termsAndCondition_currentVersionNo}" />
+                </Restriction>
+            </ClaimType>
+
+            <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
+            <ClaimType Id="extension_AgreedToTermsOfService">
+                <DisplayName>This is the current business Terms of Service version</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+            </ClaimType>
+
+            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
+            <ClaimType Id="policyTOSversion">
+                <DisplayName>This is the current business Terms of Service version</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+                <UserInputType>Paragraph</UserInputType>
+            </ClaimType>
+
+            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to trigger an OrchestrationStep that presents a
+  TOS page to the end user during Sign-in flows only -->
+            <ClaimType Id="renewalTOSrequired">
+                <DisplayName>This variable states whether TOS requires to be renewed</DisplayName>
+                <DataType>boolean</DataType>
+                <AdminHelpText>This variable states whether TOS requires to be renewed</AdminHelpText>
+            </ClaimType>
         </ClaimsSchema>
+
         <ClaimsTransformations>
+
             <ClaimsTransformation Id="GenerateSendGridRequestBody" TransformationMethod="GenerateJson">
                 <InputClaims>
                     <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.to.0.email" />
@@ -50,7 +107,58 @@
                     <OutputClaim ClaimTypeReferenceId="passwordText" TransformationClaimType="outputClaim" />
                 </OutputClaims>
             </ClaimsTransformation>
+
+            <!-- combine firstname and lastname. Useful to know in the B2C UI otherwise it shows as unknown -->
+            <ClaimsTransformation Id="CreateDisplayNameFromFirstNameAndLastName" TransformationMethod="FormatStringMultipleClaims">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="givenName" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="surName" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="stringFormat" DataType="string" Value="{0} {1}" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+            <!-- set currentTime in the claims bag -->
+            <ClaimsTransformation Id="GetCurrentDateTime" TransformationMethod="GetCurrentDateTime">
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="currentDateTime" TransformationClaimType="currentDateTime" />
+                </OutputClaims>
+            </ClaimsTransformation>
+
+            <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTermsOfService)
+      equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
+            <ClaimsTransformation Id="IsTermsOfServiceRequired" TransformationMethod="CompareClaims">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
+                    <InputParameter Id="ignoreCase" DataType="string" Value="true" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+
+            <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
+      assigned to the AgreedToTermsOfService button. If not selected, then "did not accept" value will be assigned to it.-->
+            <ClaimsTransformation Id="AssertTOSHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="AgreedToTermsOfService" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
+                </InputParameters>
+            </ClaimsTransformation>
+
         </ClaimsTransformations>
+
+
         <ContentDefinitions>
             <ContentDefinition Id="api.localaccountsignup">
                 <!--<LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
@@ -99,7 +207,6 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
-
         <ClaimsProvider>
             <DisplayName>One time password technical profiles</DisplayName>
             <TechnicalProfiles>
@@ -177,10 +284,10 @@
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <!-- block this temporarily during testing - emailVerificationControl -->
-                    <!--<DisplayClaims>
+                    <DisplayClaims>
                             <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
                         </DisplayClaims>
-                    -->
+                    
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
@@ -259,112 +366,46 @@
                         <InputClaim ClaimTypeReferenceId="email" Required="true" />
                     </InputClaims>
                     <DisplayClaims>
-                        <DisplayClaim ClaimTypeReferenceId="termsAndCondition_currentVersionNo" />
+                        <DisplayClaim ClaimTypeReferenceId="policyTOSversion" />
                     </DisplayClaims>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="termsAndCondition_currentVersionNo" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="policyTOSversion" Required="true" />
                     </OutputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
         <ClaimsProvider>
-            <DisplayName>collectTCPStepAndCreate</DisplayName>
+            <DisplayName>LocalAccountSignUpWithLogonEmail</DisplayName>
             <TechnicalProfiles>
-                <TechnicalProfile Id="collectTCPStepAndCreate">
-                    <DisplayName>collectTCPStepAndCreate</DisplayName>
-                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                <!--Sample: Provides a required Terms of Service Check-Box during sign-up-->
+                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
                     <Metadata>
-                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
-                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
                         <Item Key="language.button_continue">Agree and Create Account</Item>
                     </Metadata>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" Required="true" />
-                    </InputClaims>
                     <DisplayClaims>
-                        <DisplayClaim ClaimTypeReferenceId="testConsentAndPrivacy_currentVersionNo" />
+                        <DisplayClaim ClaimTypeReferenceId="policyTOSversion" />
                     </DisplayClaims>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="passwordText" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="displayName" />
-                        <OutputClaim ClaimTypeReferenceId="termsAndCondition_currentVersionNo" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="testConsentAndPrivacy_currentVersionNo" />
-                        <OutputClaim ClaimTypeReferenceId="objectId" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
-                        <OutputClaim ClaimTypeReferenceId="authenticationSource" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="newUser" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="AgreedToTermsOfService" DefaultValue="true" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="userRole" DefaultValue="Consumer" Required="true" />
                     </OutputClaims>
-                    <OutputClaimsTransformations>
-                        <OutputClaimsTransformation ReferenceId="SetTermsAndCondition_versionNoConsented" />
-                        <OutputClaimsTransformation ReferenceId="SetTermsAndCondition_versionNoConsentedDateTime" />
-                        <OutputClaimsTransformation ReferenceId="SetTestConsentAndPrivacy_versionNoConsented" />
-                        <OutputClaimsTransformation ReferenceId="SetTestConsentAndPrivacy_versionNoConsentedDateTime" />
-                    </OutputClaimsTransformations>
-                    <ValidationTechnicalProfiles>
-                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonEmail" />
-                    </ValidationTechnicalProfiles>
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
                 </TechnicalProfile>
 
                 <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
                 <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />
+                        <PersistedClaim ClaimTypeReferenceId="AgreedToTermsOfService" PartnerClaimType="extension_AgreedToTermsOfService" />
                     </PersistedClaims>
                 </TechnicalProfile>
 
             </TechnicalProfiles>
         </ClaimsProvider>
-
-        <!--  kept for reference
-       <ClaimsProvider>
-            <DisplayName>OriginalSignUpStep</DisplayName>
-            <TechnicalProfiles>
-                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail-CustomEmail">
-                    <DisplayName>OriginalSignUpStep</DisplayName>
-                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                    <Metadata>
-                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
-                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
-                        <Item Key="language.button_continue">Create</Item>
-                    </Metadata>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" />
-                    </InputClaims>
-                    <DisplayClaims>
-                        <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
-                        <DisplayClaim ClaimTypeReferenceId="displayName" Required="true" />
-                        <DisplayClaim ClaimTypeReferenceId="givenName" Required="true" />
-                        <DisplayClaim ClaimTypeReferenceId="surName" Required="true" />
-                        <DisplayClaim ClaimTypeReferenceId="newPassword" Required="true" />
-                        <DisplayClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
-                    </DisplayClaims>
-                    <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="objectId" />
-                        <OutputClaim ClaimTypeReferenceId="executed-SelfAsserted-Input" DefaultValue="true" />
-                        <OutputClaim ClaimTypeReferenceId="authenticationSource" />
-                        <OutputClaim ClaimTypeReferenceId="newUser" />
-                    </OutputClaims>
-                    <ValidationTechnicalProfiles>
-                        <ValidationTechnicalProfile ReferenceId="AAD-UserWriteUsingLogonEmail" />
-                    </ValidationTechnicalProfiles>
-                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-AAD" />
-                </TechnicalProfile>
-            </TechnicalProfiles>
-        </ClaimsProvider>
-        -->
     </ClaimsProviders>
+
     <UserJourneys>
-        <UserJourney Id="SignUpOrSignInCustomEmail">
+
+        <UserJourney Id="ConsumerSignUp">
             <OrchestrationSteps>
 
                 <OrchestrationStep Order="1" Type="ClaimsExchange">
@@ -389,7 +430,7 @@
                 </OrchestrationStep>
                 <OrchestrationStep Order="5" Type="ClaimsExchange">
                     <ClaimsExchanges>
-                        <ClaimsExchange Id="collectTCPStepAndCreate" TechnicalProfileReferenceId="collectTCPStepAndCreate" />
+                        <ClaimsExchange Id="LocalAccountSignUpWithLogonEmail" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
                 <!-- This step reads any user attributes that we may not have received when in the token. -->

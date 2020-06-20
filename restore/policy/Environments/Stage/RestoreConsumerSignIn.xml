@@ -3,24 +3,25 @@
   xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestorestage.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSI" PublicPolicyUri="http://dtsrestorestage.onmicrosoft.com/B2C_1A_RestoreConsumerSI" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
   <BasePolicy>
     <TenantId>dtsrestorestage.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_RestoreConsumerExtensions</PolicyId>
+    <PolicyId>B2C_1A_RestoreConsumerSignInExtension</PolicyId>
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="ConsumerSignIn" />
+    <DefaultUserJourney ReferenceId="TermsOfServiceSignUpOrSignIn" />
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
       <OutputClaims>
-        <OutputClaim ClaimTypeReferenceId="signInNames.emailAddress" PartnerClaimType="email" />
-        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
-        <OutputClaim ClaimTypeReferenceId="surName" />
-        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsented" />
-        <OutputClaim ClaimTypeReferenceId="extension_termsAndCondition_versionNoConsentedDateTime" />
-        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsented" />
-        <OutputClaim ClaimTypeReferenceId="extension_testConsentAndPrivacy_versionNoConsentedDateTime" />
+        <!--Sample: Additional claims are not required and were used for testing purposes only -->        
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="policyTOSversion" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
