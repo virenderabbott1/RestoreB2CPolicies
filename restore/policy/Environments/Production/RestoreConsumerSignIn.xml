@@ -7,7 +7,7 @@
   </BasePolicy>
 
   <RelyingParty>
-    <DefaultUserJourney ReferenceId="TermsOfServiceSignUpOrSignIn" />
+    <DefaultUserJourney ReferenceId="ConsumerSignIn" />
     <TechnicalProfile Id="PolicyProfile">
       <DisplayName>PolicyProfile</DisplayName>
       <Protocol Name="OpenIdConnect" />
@@ -15,11 +15,14 @@
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <!--Sample: Additional claims are not required and were used for testing purposes only -->        
-        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="extension_AgreedToTermsOfService" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="extension_AgreedToTOS" />
         <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="policyTOSversion" />
         <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="extension_AgreedToTCP" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="policyTCPversion" />
+        <!--Sample action Required: Remove after testing--><OutputClaim ClaimTypeReferenceId="renewalTCPrequired" />
         <OutputClaim ClaimTypeReferenceId="surname" />
-        <OutputClaim ClaimTypeReferenceId="email" />
+        <OutputClaim ClaimTypeReferenceId="signInName" />
         <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
         <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
       </OutputClaims>

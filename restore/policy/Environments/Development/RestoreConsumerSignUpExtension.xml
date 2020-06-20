@@ -64,7 +64,7 @@
                 <DataType>string</DataType>
                 <UserInputType>CheckboxMultiSelect</UserInputType>
                 <Restriction>
-                    <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv01" />
+                    <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv02" />
                 </Restriction>
             </ClaimType>
 

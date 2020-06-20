@@ -15,11 +15,7 @@
         <OutputClaim ClaimTypeReferenceId="displayName" />
         <OutputClaim ClaimTypeReferenceId="givenName" />
         <OutputClaim ClaimTypeReferenceId="surName" />
-        <OutputClaim ClaimTypeReferenceId="userRole" />
-        <OutputClaim ClaimTypeReferenceId="policyTOSversion" />
-        <OutputClaim ClaimTypeReferenceId="AgreedToTOS" />
-        <OutputClaim ClaimTypeReferenceId="policyTCPversion" />
-        <OutputClaim ClaimTypeReferenceId="AgreedToTCP" />
+        <OutputClaim ClaimTypeReferenceId="userRole" />        
       </OutputClaims>
       <SubjectNamingInfo ClaimType="sub" />
     </TechnicalProfile>
