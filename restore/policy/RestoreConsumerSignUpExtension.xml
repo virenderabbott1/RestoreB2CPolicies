@@ -13,7 +13,7 @@
                 <AdminHelpText>Store user role </AdminHelpText>
                 <UserHelpText>It will be "Consumer" </UserHelpText>
             </ClaimType>
-            <ClaimType Id="dateOfBirth">
+            <ClaimType Id="extension_dateOfBirth">
                 <DisplayName>Date Of Birth</DisplayName>
                 <DataType>date</DataType>
                 <AdminHelpText>Store date of birth of the user </AdminHelpText>
@@ -98,21 +98,6 @@
                 <UserInputType>Paragraph</UserInputType>
             </ClaimType>
 
-            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to trigger an OrchestrationStep that presents a
-  TOS page to the end user during Sign-in flows only -->
-            <ClaimType Id="renewalTOSrequired">
-                <DisplayName>This variable states whether TOS requires to be renewed</DisplayName>
-                <DataType>boolean</DataType>
-                <AdminHelpText>This variable states whether TOS requires to be renewed</AdminHelpText>
-            </ClaimType>
-
-            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to trigger an OrchestrationStep that presents a
-  TOS page to the end user during Sign-in flows only -->
-            <ClaimType Id="renewalTCPrequired">
-                <DisplayName>This variable states whether TOS requires to be renewed</DisplayName>
-                <DataType>boolean</DataType>
-                <AdminHelpText>This variable states whether TOS requires to be renewed</AdminHelpText>
-            </ClaimType>
         </ClaimsSchema>
 
         <ClaimsTransformations>
@@ -160,63 +145,6 @@
                     <OutputClaim ClaimTypeReferenceId="currentDateTime" TransformationClaimType="currentDateTime" />
                 </OutputClaims>
             </ClaimsTransformation>
-
-            <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTOS)
-      equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
-            <ClaimsTransformation Id="IsTOSRequired" TransformationMethod="CompareClaims">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="extension_AgreedToTOS" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
-                    <InputParameter Id="ignoreCase" DataType="string" Value="true" />
-                </InputParameters>
-                <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" TransformationClaimType="outputClaim" />
-                </OutputClaims>
-            </ClaimsTransformation>
-
-            <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
-      assigned to the AgreedToTOS button. If not selected, then "did not accept" value will be assigned to it.-->
-            <ClaimsTransformation Id="AssertTOSHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="AgreedToTOS" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-                </InputParameters>
-            </ClaimsTransformation>
-
-            <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTOS)
-      equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
-            <ClaimsTransformation Id="IsTCPRequired" TransformationMethod="CompareClaims">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="extension_AgreedToTCP" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
-                    <InputParameter Id="ignoreCase" DataType="string" Value="true" />
-                </InputParameters>
-                <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="renewalTCPrequired" TransformationClaimType="outputClaim" />
-                </OutputClaims>
-            </ClaimsTransformation>
-
-            <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
-assigned to the AgreedToTOS button. If not selected, then "did not accept" value will be assigned to it.-->
-            <ClaimsTransformation Id="AssertTCPHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="AgreedToTCP" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-                </InputParameters>
-            </ClaimsTransformation>
-
         </ClaimsTransformations>
 
 
@@ -252,6 +180,7 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
             </DisplayControl>
         </DisplayControls>
     </BuildingBlocks>
+
     <ClaimsProviders>
         <ClaimsProvider>
             <DisplayName>Copy user input password to temporary field passwordText</DisplayName>
@@ -447,19 +376,20 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
                         <DisplayClaim ClaimTypeReferenceId="policyTCPversion" />
                     </DisplayClaims>
                     <OutputClaims>
-                        <OutputClaim ClaimTypeReferenceId="policyTCPversion" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="AgreedToTOS" DefaultValue="true" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="AgreedToTCP" DefaultValue="true" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="userRole" DefaultValue="Consumer" Required="true" />
                     </OutputClaims>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>
 
                 <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
                 <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
-                        <PersistedClaim ClaimTypeReferenceId="AgreedToTOS" PartnerClaimType="extension_AgreedToTOS" />
-                        <PersistedClaim ClaimTypeReferenceId="AgreedToTCP" PartnerClaimType="extension_AgreedToTCP" />
+                        <PersistedClaim ClaimTypeReferenceId="userRole" PartnerClaimType="userType" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTOS" DefaultValue="{Settings:termsAndCondition_currentVersionNo}" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTCP" DefaultValue="{Settings:testConsentAndPrivacy_currentVersionNo}" />
                     </PersistedClaims>
                 </TechnicalProfile>
 
@@ -468,10 +398,8 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
     </ClaimsProviders>
 
     <UserJourneys>
-
         <UserJourney Id="ConsumerSignUp">
             <OrchestrationSteps>
-
                 <OrchestrationStep Order="1" Type="ClaimsExchange">
                     <ClaimsExchanges>
                         <ClaimsExchange Id="VerifyEmailStep" TechnicalProfileReferenceId="VerifyEmailStep" />
@@ -497,7 +425,7 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
                         <ClaimsExchange Id="LocalAccountSignUpWithLogonEmail" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
-                <!-- This step reads any user attributes that we may not have received when in the token. -->
+                <!-- This step reads any user attributes that we may not have received when in hte token. -->
                 <OrchestrationStep Order="6" Type="ClaimsExchange">
                     <ClaimsExchanges>
                         <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />

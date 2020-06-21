@@ -14,7 +14,7 @@
         <DataType>string</DataType>
         <UserInputType>CheckboxMultiSelect</UserInputType>
         <Restriction>
-          <Enumeration Text="Agreed To Terms Of Service" Value="TOCv02" />
+          <Enumeration Text="Agreed To Terms Of Service" Value="TOCv01" />
         </Restriction>
       </ClaimType>
 
@@ -24,7 +24,7 @@
         <DataType>string</DataType>
         <UserInputType>CheckboxMultiSelect</UserInputType>
         <Restriction>
-          <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv02" />
+          <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv01" />
         </Restriction>
       </ClaimType>
 
@@ -183,16 +183,16 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" />
-            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv02" />
-            <InputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv02" />
+            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv01" />
+            <InputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv01" />
           </InputClaims>
           <DisplayClaims>
             <DisplayClaim ClaimTypeReferenceId="signInName" Required="true" />
             <DisplayClaim ClaimTypeReferenceId="password" Required="true" />            
           </DisplayClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv02" />
-            <OutputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv02" />
+            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv01" />
+            <OutputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv01" />
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
