@@ -2,61 +2,12 @@
 
   <BasePolicy>
     <TenantId>dtsrestore.onmicrosoft.com</TenantId>
-    <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    <PolicyId>B2C_1A_RestoreConsumerBaseExtension</PolicyId>
   </BasePolicy>
   <BuildingBlocks>
 
 
     <ClaimsSchema>
-      <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
-      <ClaimType Id="AgreedToTOS">
-        <DisplayName>Agreed To Terms Of Service</DisplayName>
-        <DataType>string</DataType>
-        <UserInputType>CheckboxMultiSelect</UserInputType>
-        <Restriction>
-          <Enumeration Text="Agreed To Terms Of Service" Value="TOCv01" />
-        </Restriction>
-      </ClaimType>
-
-      <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
-      <ClaimType Id="AgreedToTCP">
-        <DisplayName>Agreed To Test consent and privacy </DisplayName>
-        <DataType>string</DataType>
-        <UserInputType>CheckboxMultiSelect</UserInputType>
-        <Restriction>
-          <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv01" />
-        </Restriction>
-      </ClaimType>
-
-      <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
-      <ClaimType Id="extension_AgreedToTOS">
-        <DisplayName>This is the current business Terms of Service version</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-      </ClaimType>
-
-      <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
-      <ClaimType Id="extension_AgreedToTCP">
-        <DisplayName>This is the current business Terms of Service version</DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-      </ClaimType>
-
-      <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
-      <ClaimType Id="policyTOSversion">
-        <DisplayName>Terms and Conditions: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-        <UserInputType>Paragraph</UserInputType>
-      </ClaimType>
-
-      <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
-      <ClaimType Id="policyTCPversion">
-        <DisplayName>Test Consent and Privacy Notice : Your Privacy is important. Your test results will be private to you. Where required we will report results to public health officials. </DisplayName>
-        <DataType>string</DataType>
-        <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
-        <UserInputType>Paragraph</UserInputType>
-      </ClaimType>
 
       <!--Sample: This is a claim created dynamically for logic purposes only. It is used to trigger an OrchestrationStep that presents a
 TOS page to the end user during Sign-in flows only -->
@@ -79,59 +30,60 @@ TOS page to the end user during Sign-in flows only -->
     <ClaimsTransformations>
       <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTOS)
       equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
-            <ClaimsTransformation Id="IsTOSRequired" TransformationMethod="CompareClaims">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="extension_AgreedToTOS" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
-                    <InputParameter Id="ignoreCase" DataType="string" Value="true" />
-                </InputParameters>
-                <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" TransformationClaimType="outputClaim" />
-                </OutputClaims>
-            </ClaimsTransformation>
+      <ClaimsTransformation Id="IsTOSRequired" TransformationMethod="CompareClaims">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim1" />
+          <InputClaim ClaimTypeReferenceId="extension_AgreedToTOS" TransformationClaimType="inputClaim2" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
+          <InputParameter Id="ignoreCase" DataType="string" Value="true" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
 
-            <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
+      <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
       assigned to the AgreedToTOS button. If not selected, then "did not accept" value will be assigned to it.-->
-            <ClaimsTransformation Id="AssertTOSHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="AgreedToTOS" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-                </InputParameters>
-            </ClaimsTransformation>
+      <ClaimsTransformation Id="AssertTOSHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="AgreedToTOS" TransformationClaimType="inputClaim1" />
+          <InputClaim ClaimTypeReferenceId="policyTOSversion" TransformationClaimType="inputClaim2" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
+        </InputParameters>
+      </ClaimsTransformation>
 
-            <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTOS)
+      <!--Sample: This returns a boolean value assigned to "renewalTOSrequired" to determine whether the user's last accepted TOS (extension_AgreedToTOS)
       equals to the current Company's TOS version (policyTOSversion). If the two variables are not equal, it will write the value "true" in the renewalTOSrequired claim.-->
-            <ClaimsTransformation Id="IsTCPRequired" TransformationMethod="CompareClaims">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="extension_AgreedToTCP" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
-                    <InputParameter Id="ignoreCase" DataType="string" Value="true" />
-                </InputParameters>
-                <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="renewalTCPrequired" TransformationClaimType="outputClaim" />
-                </OutputClaims>
-            </ClaimsTransformation>
+      <ClaimsTransformation Id="IsTCPRequired" TransformationMethod="CompareClaims">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim1" />
+          <InputClaim ClaimTypeReferenceId="extension_AgreedToTCP" TransformationClaimType="inputClaim2" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="operator" DataType="string" Value="NOT EQUAL" />
+          <InputParameter Id="ignoreCase" DataType="string" Value="true" />
+        </InputParameters>
+        <OutputClaims>
+          <OutputClaim ClaimTypeReferenceId="renewalTCPrequired" TransformationClaimType="outputClaim" />
+        </OutputClaims>
+      </ClaimsTransformation>
 
-            <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
+      <!--Sample: This verifies whether or not the TOS button has been selected by checking if the correct variable has been 
 assigned to the AgreedToTOS button. If not selected, then "did not accept" value will be assigned to it.-->
-            <ClaimsTransformation Id="AssertTCPHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
-                <InputClaims>
-                    <InputClaim ClaimTypeReferenceId="AgreedToTCP" TransformationClaimType="inputClaim1" />
-                    <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim2" />
-                </InputClaims>
-                <InputParameters>
-                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
-                </InputParameters>
-            </ClaimsTransformation>
+      <ClaimsTransformation Id="AssertTCPHasBeenSelected" TransformationMethod="AssertStringClaimsAreEqual">
+        <InputClaims>
+          <InputClaim ClaimTypeReferenceId="AgreedToTCP" TransformationClaimType="inputClaim1" />
+          <InputClaim ClaimTypeReferenceId="policyTCPversion" TransformationClaimType="inputClaim2" />
+        </InputClaims>
+        <InputParameters>
+          <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
+        </InputParameters>
+      </ClaimsTransformation>
+
     </ClaimsTransformations>
 
   </BuildingBlocks>
@@ -183,16 +135,16 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="signInName" />
-            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv01" />
-            <InputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv01" />
+            <InputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv02" />
+            <InputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv02" />
           </InputClaims>
           <DisplayClaims>
             <DisplayClaim ClaimTypeReferenceId="signInName" Required="true" />
-            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />            
+            <DisplayClaim ClaimTypeReferenceId="password" Required="true" />
           </DisplayClaims>
           <OutputClaims>
-            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv01" />
-            <OutputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv01" />
+            <OutputClaim ClaimTypeReferenceId="policyTOSversion" DefaultValue="TOCv02" />
+            <OutputClaim ClaimTypeReferenceId="policyTCPversion" DefaultValue="TCPv02" />
             <OutputClaim ClaimTypeReferenceId="signInName" Required="true" />
             <OutputClaim ClaimTypeReferenceId="password" Required="true" />
             <OutputClaim ClaimTypeReferenceId="objectId" />
@@ -246,14 +198,19 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
             <!--Sample action required: Customize your own error message if user attempts to bypass TOS-->
             <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">Customizable Error Message</Item>
+            <Item Key="language.button_continue">Agree and SignIn</Item>
           </Metadata>
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="AgreedToTOS" />
           </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="policyTOSversion" />
+            <DisplayClaim ClaimTypeReferenceId="AgreedToTOS" />
+          </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="AgreedToTOS" />
-          </OutputClaims>
+          </OutputClaims>          
           <ValidationTechnicalProfiles>
             <ValidationTechnicalProfile ReferenceId="VerfiyTOSConsentedTo" />
             <ValidationTechnicalProfile ReferenceId="AAD-UserWriteProfileUsingObjectIdUpdateTOU" />
@@ -272,11 +229,16 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
             <Item Key="ContentDefinitionReferenceId">api.selfasserted</Item>
             <!--Sample action required: Customize your own error message if user attempts to bypass TOS-->
             <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">Customizable Error Message</Item>
+            <Item Key="language.button_continue">Agree and SignIn</Item>
           </Metadata>
           <IncludeInSso>false</IncludeInSso>
           <InputClaims>
             <InputClaim ClaimTypeReferenceId="AgreedToTCP" />
           </InputClaims>
+          <DisplayClaims>
+            <DisplayClaim ClaimTypeReferenceId="policyTCPversion" />
+            <DisplayClaim ClaimTypeReferenceId="AgreedToTCP" />
+          </DisplayClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="AgreedToTCP" />
           </OutputClaims>
