@@ -111,7 +111,7 @@
                 <InputParameters>
                     <InputParameter Id="template_id" DataType="string" Value="{Settings:sendgrid.template_id}" />
                     <InputParameter Id="from.email" DataType="string" Value="{Settings:sendgrid.from.email}" />
-                    <InputParameter Id="personalizations.0.subject" DataType="string" Value="{Settings:sendgrid.personalizations.0.subject}" />
+                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="{Settings:sendgrid.personalizations.0.subject}" />
                 </InputParameters>
                 <OutputClaims>
                     <OutputClaim ClaimTypeReferenceId="sendGridReqBody" TransformationClaimType="outputClaim" />
@@ -149,17 +149,40 @@
 
 
         <ContentDefinitions>
-            <ContentDefinition Id="api.localaccountsignup">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            <ContentDefinition Id="api.selfasserted">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
-        <ContentDefinition Id="api.localaccountsignin">
-            <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-            <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-            <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
-        </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignup">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountpasswordreset">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
+            <!-- this should point to updateprofile.cshtml-->
+            <ContentDefinition Id="api.selfasserted.profileupdate">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
+            <!-- this should point to exception.cshtml-->
+            <ContentDefinition Id="api.error">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
         </ContentDefinitions>
+
         <DisplayControls>
             <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
                 <DisplayClaims>

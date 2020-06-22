@@ -54,7 +54,7 @@
                 <DataType>string</DataType>
                 <UserInputType>CheckboxMultiSelect</UserInputType>
                 <Restriction>
-                    <Enumeration Text="Agreed To Terms Of Service" Value="TOCv02" SelectByDefault="true" />
+                    <Enumeration Text="Agreed To Terms Of Service" Value="TOCv01" SelectByDefault="true" />
                 </Restriction>
             </ClaimType>
 
@@ -111,7 +111,7 @@
                 <InputParameters>
                     <InputParameter Id="template_id" DataType="string" Value="d-83f9f8ed7a2a45bbb5ea99ad57d1f48c" />
                     <InputParameter Id="from.email" DataType="string" Value="restore@abbott.com" />
-                    <InputParameter Id="personalizations.0.subject" DataType="string" Value="Restore account email verification code" />
+                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="Restore account email verification code" />
                 </InputParameters>
                 <OutputClaims>
                     <OutputClaim ClaimTypeReferenceId="sendGridReqBody" TransformationClaimType="outputClaim" />
@@ -149,12 +149,40 @@
 
 
         <ContentDefinitions>
+            <ContentDefinition Id="api.selfasserted">
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
             <ContentDefinition Id="api.localaccountsignup">
-                <!--<LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>-->
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin">
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountpasswordreset">
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <!-- this should point to updateprofile.cshtml-->
+            <ContentDefinition Id="api.selfasserted.profileupdate">
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <!-- this should point to exception.cshtml-->
+            <ContentDefinition Id="api.error">
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
                 <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
             </ContentDefinition>
         </ContentDefinitions>
+
         <DisplayControls>
             <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
                 <DisplayClaims>
@@ -258,7 +286,7 @@
                     </InputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>
-        </ClaimsProvider>        
+        </ClaimsProvider>
     </ClaimsProviders>
-    
+
 </TrustFrameworkPolicy>

@@ -21,10 +21,10 @@
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <!-- block this temporarily during testing - emailVerificationControl -->
-                    <!-- <DisplayClaims>
+                    <DisplayClaims>
                         <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
                     </DisplayClaims>
-                    -->
+                    
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
