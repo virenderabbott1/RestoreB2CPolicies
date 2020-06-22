@@ -150,10 +150,15 @@
 
         <ContentDefinitions>
             <ContentDefinition Id="api.localaccountsignup">
-                <!--<LoadUri>~/tenant/default/selfAsserted.cshtml</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>-->
+                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
                 <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
             </ContentDefinition>
+        <ContentDefinition Id="api.localaccountsignin">
+            <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
+            <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+            <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+        </ContentDefinition>
         </ContentDefinitions>
         <DisplayControls>
             <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
@@ -258,7 +263,7 @@
                     </InputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>
-        </ClaimsProvider>        
+        </ClaimsProvider>
     </ClaimsProviders>
-    
+
 </TrustFrameworkPolicy>
