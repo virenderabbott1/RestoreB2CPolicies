@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="restoretesterdev.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSignUpExtensionBeta" PublicPolicyUri="http://restoretesterdev.onmicrosoft.com/B2C_1A_RestoreConsumerSignUpExtensionBeta">
+    <BasePolicy>
+        <TenantId>restoretesterdev.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_RestoreConsumerBaseExtensionBeta</PolicyId>
+    </BasePolicy>
+
+    <BuildingBlocks>
+        <ClaimsSchema>
+            <ClaimType Id="welcomeEmailReqBody">
+                <DisplayName>SendGrid request body for welcome email</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+        </ClaimsSchema>
+
+        <ClaimsTransformations>
+            <ClaimsTransformation Id="GenerateWelcomeEmailRequestBody" TransformationMethod="GenerateJson">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.to.0.email" />
+                    <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.dynamic_template_data.email" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="template_id" DataType="string" Value="d-15895daad7154702ba3b8cf8dc5d72ba" />
+                    <InputParameter Id="from.email" DataType="string" Value="virender.choudhary@abbott.com" />
+                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="Welcome to Restore Consumer Account" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="welcomeEmailReqBody" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+        </ClaimsTransformations>
+
+    </BuildingBlocks>
+
+
+    <ClaimsProviders>
+        <ClaimsProvider>
+            <DisplayName>VerifyEmailStep</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="VerifyEmailStep">
+                    <DisplayName>VerifyEmailStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Continue</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" />
+                    </InputClaims>
+                    <!-- block this temporarily during testing - emailVerificationControl -->
+                    <!-- <DisplayClaims>
+                        <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+                    </DisplayClaims>-->
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="VerifyEmailStep-CheckEmailAlreadyExists">
+                    <DisplayName>VerifyEmailStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Continue</Item>
+                        <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">There is another user with this email address</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" />
+                    </InputClaims>
+                    <!-- block this temporarily during testing - emailVerificationControl -->
+                    <!-- <DisplayClaims>
+                        <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+                    </DisplayClaims>
+                    -->
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="email" Required="true" />
+                    </OutputClaims>
+                    <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" />
+                    </ValidationTechnicalProfiles>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+        <ClaimsProvider>
+            <DisplayName>collectPasswordsStep</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="collectPasswordsStep">
+                    <DisplayName>collectPasswordsStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Set Password</Item>
+                    </Metadata>
+                    <DisplayClaims>
+                        <DisplayClaim ClaimTypeReferenceId="newPassword" Required="true" />
+                        <DisplayClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+                    </DisplayClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="newPassword" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="passwordText" />
+                    </OutputClaims>
+                    <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="PasswordCopier" />
+                    </ValidationTechnicalProfiles>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+        <ClaimsProvider>
+            <DisplayName>collectTOCStep</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="collectTOCStep">
+                    <DisplayName>collectTOCStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Agree and Continue</Item>
+                    </Metadata>
+                    <DisplayClaims>
+                        <DisplayClaim ClaimTypeReferenceId="policyTOSversion" />
+                    </DisplayClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="policyTOSversion" Required="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+        <ClaimsProvider>
+            <DisplayName>collectTCPStep</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="collectTCPStep">
+                    <DisplayName>collectTCPStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Agree and Continue</Item>
+                    </Metadata>
+                    <DisplayClaims>
+                        <DisplayClaim ClaimTypeReferenceId="policyTCPversion" />
+                    </DisplayClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="policyTCPversion" Required="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+        <ClaimsProvider>
+            <DisplayName>LocalAccountSignUpWithLogonEmail</DisplayName>
+            <TechnicalProfiles>
+                <!--Sample: Provides a required Terms of Service Check-Box during sign-up-->
+                <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
+                    <Metadata>
+                        <Item Key="language.button_continue">Create Account</Item>
+                    </Metadata>
+                    <DisplayClaims>
+                        <DisplayClaim ClaimTypeReferenceId="givenName" Required="true" />
+                        <DisplayClaim ClaimTypeReferenceId="surName" Required="true" />
+                        <DisplayClaim ClaimTypeReferenceId="extension_DOB" Required="true" />
+                    </DisplayClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTOS" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTCP" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_DOB" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="AgreedToTOS" DefaultValue="true" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="AgreedToTCP" DefaultValue="true" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="userRole" DefaultValue="Consumer" Required="true" />
+                    </OutputClaims>
+                    <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="setDisplayNameFromFirstNameAndLastName"></ValidationTechnicalProfile>
+                    </ValidationTechnicalProfiles>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="setDisplayNameFromFirstNameAndLastName">
+                    <DisplayName>setDisplayNameFromFirstNameAndLastName</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="givenName" />
+                        <InputClaim ClaimTypeReferenceId="surName" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="CreateDisplayNameFromFirstNameAndLastName" />
+                    </OutputClaimsTransformations>
+                    <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
+                </TechnicalProfile>
+
+                <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
+                <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
+                    <PersistedClaims>
+                        <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_DOB" />
+                        <PersistedClaim ClaimTypeReferenceId="userRole" PartnerClaimType="userType" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTOS" DefaultValue="TOCv01" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTCP" DefaultValue="TCPv01" />
+                    </PersistedClaims>
+                </TechnicalProfile>
+
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+        <ClaimsProvider>
+            <DisplayName>sendWelcomeEmail</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="sendWelcomeEmail">
+                    <DisplayName>Use SendGrid's email API to send the code the the user</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ServiceUrl">https://api.sendgrid.com/v3/mail/send</Item>
+                        <Item Key="AuthenticationType">Bearer</Item>
+                        <Item Key="SendClaimsIn">Body</Item>
+                        <Item Key="ClaimUsedForRequestPayload">welcomeEmailReqBody</Item>
+                    </Metadata>
+                    <CryptographicKeys>
+                        <Key Id="BearerAuthenticationToken" StorageReferenceId="B2C_1A_SendGridSecret" />
+                    </CryptographicKeys>
+                    <InputClaimsTransformations>
+                        <InputClaimsTransformation ReferenceId="GenerateWelcomeEmailRequestBody" />
+                    </InputClaimsTransformations>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="welcomeEmailReqBody" />
+                    </InputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+    </ClaimsProviders>
+
+    <UserJourneys>
+        <UserJourney Id="ConsumerSignUp">
+            <OrchestrationSteps>
+                <OrchestrationStep Order="1" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="collectTOCStep" TechnicalProfileReferenceId="collectTOCStep" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="2" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="collectTCPStep" TechnicalProfileReferenceId="collectTCPStep" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="3" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="VerifyEmailStep" TechnicalProfileReferenceId="VerifyEmailStep-CheckEmailAlreadyExists" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="4" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="collectPasswordsStep" TechnicalProfileReferenceId="collectPasswordsStep" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="5" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="LocalAccountSignUpWithLogonEmail" TechnicalProfileReferenceId="LocalAccountSignUpWithLogonEmail" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <!-- This step reads any user attributes that we may not have received when in hte token. -->
+                <OrchestrationStep Order="6" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="AADUserReadWithObjectId" TechnicalProfileReferenceId="AAD-UserReadUsingObjectId" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="7" Type="ClaimsExchange">
+                    <ClaimsExchanges>
+                        <ClaimsExchange Id="sendWelcomeEmail" TechnicalProfileReferenceId="sendWelcomeEmail" />
+                    </ClaimsExchanges>
+                </OrchestrationStep>
+                <OrchestrationStep Order="8" Type="SendClaims" CpimIssuerTechnicalProfileReferenceId="JwtIssuer" />
+            </OrchestrationSteps>
+            <ClientDefinition ReferenceId="DefaultWeb" />
+        </UserJourney>
+    </UserJourneys>
+</TrustFrameworkPolicy>

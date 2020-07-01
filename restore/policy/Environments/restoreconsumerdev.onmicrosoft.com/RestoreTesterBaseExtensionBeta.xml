@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="restoreconsumerdev.onmicrosoft.com" PolicyId="B2C_1A_RestoreTesterBaseExtensionBeta" PublicPolicyUri="http://restoreconsumerdev.onmicrosoft.com/B2C_1A_RestoreTesterBaseExtensionBeta">
+    <BasePolicy>
+        <TenantId>restoreconsumerdev.onmicrosoft.com</TenantId>
+        <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
+    </BasePolicy>
+    <BuildingBlocks>
+        <ClaimsSchema>
+            <!--firstname, lastname, password etc claims are inhertited from base policy -->
+            <ClaimType Id="userRole">
+                <DisplayName>Role of the user </DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>Store user role </AdminHelpText>
+                <UserHelpText>It will be "Tester" </UserHelpText>
+            </ClaimType>
+            <ClaimType Id="extension_DOB">
+                <DisplayName>Date of Birth</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>The user's date of birth.</AdminHelpText>
+                <UserHelpText>Your date of birth.</UserHelpText>
+                <UserInputType>TextBox</UserInputType>
+                <!-- <PredicateValidationReference Id="CustomDateRange" />-->
+            </ClaimType>
+            <ClaimType Id="objectIdNotFound">
+                <DisplayName>Used for comparison</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+            <ClaimType Id="Otp">
+                <DisplayName>Secondary One-time password</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+            <ClaimType Id="verificationEmailReqBody">
+                <DisplayName>SendGrid request body for verification email</DisplayName>
+                <DataType>string</DataType>
+            </ClaimType>
+            <ClaimType Id="VerificationCode">
+                <DisplayName>Secondary Verification Code</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Enter your email verification code</UserHelpText>
+                <UserInputType>TextBox</UserInputType>
+            </ClaimType>
+            <ClaimType Id="passwordText">
+                <DisplayName>Temporarily store the password between steps</DisplayName>
+                <DataType>string</DataType>
+                <UserHelpText>Temporarily store the password between steps</UserHelpText>
+            </ClaimType>
+
+            <!-- additional cliam types to drive the logic-->
+            <ClaimType Id="currentDateTime">
+                <DisplayName>Current Date Time</DisplayName>
+                <DataType>dateTime</DataType>
+                <AdminHelpText>Current date time in UTC.</AdminHelpText>
+                <UserHelpText>Current date time in UTC.</UserHelpText>
+            </ClaimType>
+
+            <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
+            <ClaimType Id="AgreedToTOS">
+                <DisplayName>Agreed To Terms Of Service</DisplayName>
+                <DataType>string</DataType>
+                <UserInputType>CheckboxMultiSelect</UserInputType>
+                <Restriction>
+                    <Enumeration Text="Agreed To Terms Of Service" Value="TOCv01" SelectByDefault="true" />
+                </Restriction>
+            </ClaimType>
+
+            <!--Sample action required: Update "Value" with your Company's Policy Version. In this Sample, we have used "v16". Change this to whatever version. -->
+            <ClaimType Id="AgreedToTCP">
+                <DisplayName>Agreed To Test consent and privacy </DisplayName>
+                <DataType>string</DataType>
+                <UserInputType>CheckboxMultiSelect</UserInputType>
+                <Restriction>
+                    <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv01" SelectByDefault="true" />
+                </Restriction>
+            </ClaimType>
+
+            <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
+            <ClaimType Id="extension_AgreedToTOS">
+                <DisplayName>This is the current business Terms of Service version</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+            </ClaimType>
+
+            <!--Sample: This the the attribute that is stored in Azure AD B2C on the user's object-->
+            <ClaimType Id="extension_AgreedToTCP">
+                <DisplayName>This is the current business Terms of Service version</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+            </ClaimType>
+
+            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
+            <ClaimType Id="policyTOSversion">
+                <DisplayName>Terms and Conditions: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. </DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+                <UserInputType>Paragraph</UserInputType>
+            </ClaimType>
+
+            <!--Sample: This is a claim created dynamically for logic purposes only. It is used to enforce your company's current TOS version-->
+            <ClaimType Id="policyTCPversion">
+                <DisplayName>Test Consent and Privacy Notice : Your Privacy is important. Your test results will be private to you. Where required we will report results to public health officials. </DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>This is the current business Terms of Service version</AdminHelpText>
+                <UserInputType>Paragraph</UserInputType>
+            </ClaimType>
+
+        </ClaimsSchema>
+
+        <Predicates>
+            <Predicate Id="DOBDateRange" Method="IsDateRange" HelpText="The date of birth must be between 01-01-1900 and today.">
+                <Parameters>
+                    <Parameter Id="Minimum">1900-01-01</Parameter>
+                    <Parameter Id="Maximum">Today</Parameter>
+                </Parameters>
+            </Predicate>
+        </Predicates>
+
+        <PredicateValidations>
+            <PredicateValidation Id="DOBCustomDateRange">
+                <PredicateGroups>
+                    <PredicateGroup Id="DateRangeGroup">
+                        <PredicateReferences>
+                            <PredicateReference Id="DOBDateRange" />
+                        </PredicateReferences>
+                    </PredicateGroup>
+                </PredicateGroups>
+            </PredicateValidation>
+        </PredicateValidations>
+
+        <ClaimsTransformations>
+
+            <ClaimsTransformation Id="AssertObjectIdObjectIdNotFoundAreEqual" TransformationMethod="AssertStringClaimsAreEqual">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="objectId" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="objectIdNotFound" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
+                </InputParameters>
+            </ClaimsTransformation>
+            <ClaimsTransformation Id="GenerateVerificationEmailSendGridRequestBody" TransformationMethod="GenerateJson">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.to.0.email" />
+                    <InputClaim ClaimTypeReferenceId="otp" TransformationClaimType="personalizations.0.dynamic_template_data.otp" />
+                    <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.dynamic_template_data.email" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="template_id" DataType="string" Value="d-204b9e0fb31b4de29df0694ee02e2381" />
+                    <InputParameter Id="from.email" DataType="string" Value="virender.choudhary@abbott.com" />
+                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="Restore account email verification code" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="verificationEmailReqBody" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+            <ClaimsTransformation Id="CopyPassword" TransformationMethod="CopyClaim">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="newPassword" TransformationClaimType="inputClaim" />
+                </InputClaims>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="passwordText" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+
+            <!-- combine firstname and lastname. Useful to know in the B2C UI otherwise it shows as unknown -->
+            <ClaimsTransformation Id="CreateDisplayNameFromFirstNameAndLastName" TransformationMethod="FormatStringMultipleClaims">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="givenName" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="surName" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="stringFormat" DataType="string" Value="{0} {1}" />
+                </InputParameters>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="displayName" TransformationClaimType="outputClaim" />
+                </OutputClaims>
+            </ClaimsTransformation>
+            <!-- set currentTime in the claims bag -->
+            <ClaimsTransformation Id="GetCurrentDateTime" TransformationMethod="GetCurrentDateTime">
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="currentDateTime" TransformationClaimType="currentDateTime" />
+                </OutputClaims>
+            </ClaimsTransformation>
+        </ClaimsTransformations>
+
+
+        <ContentDefinitions>
+            <ContentDefinition Id="api.selfasserted">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignup">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountpasswordreset">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin.fp">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:unifiedssp:1.2.0</DataUri>
+            </ContentDefinition>
+            <!-- this should point to updateprofile.cshtml-->
+            <ContentDefinition Id="api.selfasserted.profileupdate">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+            <!-- this should point to exception.cshtml-->
+            <ContentDefinition Id="api.error">
+                <LoadUri>~/tenant/templates/AzureBlue/selfAsserted.cshtml</LoadUri>
+                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
+                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+            </ContentDefinition>
+        </ContentDefinitions>
+
+        <DisplayControls>
+            <DisplayControl Id="emailVerificationControl" UserInterfaceControlType="VerificationControl">
+                <DisplayClaims>
+                    <DisplayClaim ClaimTypeReferenceId="email" Required="true" />
+                    <DisplayClaim ClaimTypeReferenceId="verificationCode" ControlClaimType="VerificationCode" Required="true" />
+                </DisplayClaims>
+                <OutputClaims>
+                    <OutputClaim ClaimTypeReferenceId="email" />
+                </OutputClaims>
+                <Actions>
+                    <Action Id="SendCode">
+                        <ValidationClaimsExchange>
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" ContinueOnError="false" ContinueOnSuccess="true" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGridRestfulProviderForEmailVerification">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
+                        </ValidationClaimsExchange>
+                    </Action>
+                    <Action Id="VerifyCode">
+                        <ValidationClaimsExchange>
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="VerifyOtp" />
+                        </ValidationClaimsExchange>
+                    </Action>
+                </Actions>
+            </DisplayControl>
+        </DisplayControls>
+    </BuildingBlocks>
+
+    <ClaimsProviders>
+        <ClaimsProvider>
+            <DisplayName>Copy user input password to temporary field passwordText</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="PasswordCopier">
+                    <DisplayName>Copy Password Profile</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <InputClaimsTransformations>
+                        <InputClaimsTransformation ReferenceId="CopyPassword" />
+                    </InputClaimsTransformations>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="passwordText" Required="true" />
+                    </OutputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+
+        <ClaimsProvider>
+            <DisplayName>One time password technical profiles</DisplayName>
+            <TechnicalProfiles>
+
+                <TechnicalProfile Id="AAD-UserReadUsingEmailAddress-RaiseIfExists">
+                    <Metadata>
+                        <Item Key="Operation">Read</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <!-- Required claims -->
+                        <OutputClaim ClaimTypeReferenceId="objectId" DefaultValue="NOTFOUND" />
+                        <OutputClaim ClaimTypeReferenceId="objectIdNotFound" DefaultValue="NOTFOUND" AlwaysUseDefaultValue="true" />
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="AssertObjectIdObjectIdNotFoundAreEqual" />
+                    </OutputClaimsTransformations>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+
+                <TechnicalProfile Id="GenerateOtp">
+                    <DisplayName>Generate one time password</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.OneTimePasswordProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="Operation">GenerateCode</Item>
+                        <Item Key="CodeExpirationInSeconds">1200</Item>
+                        <Item Key="CodeLength">6</Item>
+                        <Item Key="CharacterSet">0-9</Item>
+                        <Item Key="ReuseSameCode">true</Item>
+                        <Item Key="MaxNumAttempts">5</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="identifier" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="otp" PartnerClaimType="otpGenerated" />
+                    </OutputClaims>
+                </TechnicalProfile>
+                <TechnicalProfile Id="VerifyOtp">
+                    <DisplayName>Verify one time password</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.OneTimePasswordProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="Operation">VerifyCode</Item>
+                        <Item Key="UserMessage.VerificationHasExpired">You have exceed the maximum time allowed.</Item>
+                        <Item Key="UserMessage.MaxRetryAttemped">You have exceed the number of retries allowed.</Item>
+                        <Item Key="UserMessage.InvalidCode">You have entered the wrong code.</Item>
+                        <Item Key="UserMessage.ServerError">Cannot verify the code, please try again later.</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="identifier" />
+                        <InputClaim ClaimTypeReferenceId="verificationCode" PartnerClaimType="otpToVerify" />
+                    </InputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+        <ClaimsProvider>
+            <DisplayName>SendGridRestfulProviderForEmailVerification</DisplayName>
+            <TechnicalProfiles>
+                <TechnicalProfile Id="SendGridRestfulProviderForEmailVerification">
+                    <DisplayName>Use SendGrid's email API to send the code the the user</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="ServiceUrl">https://api.sendgrid.com/v3/mail/send</Item>
+                        <Item Key="AuthenticationType">Bearer</Item>
+                        <Item Key="SendClaimsIn">Body</Item>
+                        <Item Key="ClaimUsedForRequestPayload">verificationEmailReqBody</Item>
+                    </Metadata>
+                    <CryptographicKeys>
+                        <Key Id="BearerAuthenticationToken" StorageReferenceId="B2C_1A_SendGridSecret" />
+                    </CryptographicKeys>
+                    <InputClaimsTransformations>
+                        <InputClaimsTransformation ReferenceId="GenerateVerificationEmailSendGridRequestBody" />
+                    </InputClaimsTransformations>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="verificationEmailReqBody" />
+                    </InputClaims>
+                </TechnicalProfile>
+            </TechnicalProfiles>
+        </ClaimsProvider>
+    </ClaimsProviders>
+
+</TrustFrameworkPolicy>

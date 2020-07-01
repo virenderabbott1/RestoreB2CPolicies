@@ -1,0 +1,46 @@
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="restoretesterstage.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerSI" PublicPolicyUri="http://restoretesterstage.onmicrosoft.com/B2C_1A_RestoreConsumerSI" DeploymentMode="Development" UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights">
+  <BasePolicy>
+    <TenantId>restoretesterstage.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_RestoreConsumerSignInExtension</PolicyId>
+  </BasePolicy>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="ConsumerSignIn" />
+
+    <UserJourneyBehaviors>
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="233a5cc6-4986-474c-bb68-9d351a2bf8ea" DeveloperMode="true" ClientEnabled="true" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <ScriptExecution>Allow</ScriptExecution>
+    </UserJourneyBehaviors>
+
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="displayName" />
+        <OutputClaim ClaimTypeReferenceId="givenName" />
+        <!--Sample: Additional claims are not required and were used for testing purposes only -->
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTOS" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="policyTOSversion" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="renewalTOSrequired" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTCP" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="policyTCPversion" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="renewalTCPrequired" />
+        <!--Sample action Required: Remove after testing-->
+        <OutputClaim ClaimTypeReferenceId="extension_DOB" />
+
+        <OutputClaim ClaimTypeReferenceId="surname" />
+        <OutputClaim ClaimTypeReferenceId="signInName" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub" />
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="oid" />
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
