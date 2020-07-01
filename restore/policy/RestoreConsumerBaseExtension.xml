@@ -19,7 +19,7 @@
                 <AdminHelpText>The user's date of birth.</AdminHelpText>
                 <UserHelpText>Your date of birth.</UserHelpText>
                 <UserInputType>TextBox</UserInputType>
-                <!--<PredicateValidationReference Id="CustomDateRange" />-->
+                <!-- <PredicateValidationReference Id="CustomDateRange" /> -->
             </ClaimType>
             <ClaimType Id="objectIdNotFound">
                 <DisplayName>Used for comparison</DisplayName>

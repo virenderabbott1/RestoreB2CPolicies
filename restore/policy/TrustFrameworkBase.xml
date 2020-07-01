@@ -444,8 +444,8 @@
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.AzureActiveDirectoryProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
         <!-- VC Start: added: Provide objectId and appId before using extension properties. -->
          <Metadata>            
-            <Item Key="ApplicationObjectId">{Settings:objectId}</Item>
-            <Item Key="ClientId">{Settings:ClientId}</Item>     
+            <Item Key="ApplicationObjectId">{Settings:b2c-extensions-app.ObjectId}</Item>
+            <Item Key="ClientId">{Settings:b2c-extensions-app.AppId}</Item>     
           </Metadata>
         <!-- VC end. End of changes -->
           <CryptographicKeys>

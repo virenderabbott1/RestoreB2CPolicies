@@ -54,12 +54,12 @@
       <TechnicalProfiles>
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
-            <Item Key="client_id">{Settings:ProxyIdentityExperienceFrameworkAppId}</Item>
-            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFrameworkAppId}</Item>
+            <Item Key="client_id">{Settings:ProxyIdentityExperienceFramework.AppId}</Item>
+            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFramework.AppId}</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFrameworkAppId}" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFrameworkAppId}" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFramework.AppId}" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFramework.AppId}" />
           </InputClaims>
         </TechnicalProfile>
       </TechnicalProfiles>

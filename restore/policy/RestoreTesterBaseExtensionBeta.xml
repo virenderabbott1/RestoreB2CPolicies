@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="dtsrestore.onmicrosoft.com" PolicyId="B2C_1A_RestoreConsumerBaseExtension" PublicPolicyUri="http://dtsrestore.onmicrosoft.com/B2C_1A_RestoreConsumerBaseExtension">
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreTesterBaseExtensionBeta" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreTesterBaseExtensionBeta">
     <BasePolicy>
-        <TenantId>dtsrestore.onmicrosoft.com</TenantId>
+        <TenantId>{Settings:Tenant}</TenantId>
         <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
     </BasePolicy>
     <BuildingBlocks>
@@ -11,21 +11,26 @@
                 <DisplayName>Role of the user </DisplayName>
                 <DataType>string</DataType>
                 <AdminHelpText>Store user role </AdminHelpText>
-                <UserHelpText>It will be "Consumer" </UserHelpText>
+                <UserHelpText>It will be "Tester" </UserHelpText>
             </ClaimType>
-            <ClaimType Id="extension_dateOfBirth">
-                <DisplayName>Date Of Birth</DisplayName>
-                <DataType>date</DataType>
-                <AdminHelpText>Store date of birth of the user </AdminHelpText>
-                <UserHelpText>The date on which you were born.</UserHelpText>
-                <UserInputType>DateTimeDropdown</UserInputType>
+            <ClaimType Id="extension_DOB">
+                <DisplayName>Date of Birth</DisplayName>
+                <DataType>string</DataType>
+                <AdminHelpText>The user's date of birth.</AdminHelpText>
+                <UserHelpText>Your date of birth.</UserHelpText>
+                <UserInputType>TextBox</UserInputType>
+                <!-- <PredicateValidationReference Id="CustomDateRange" />-->
+            </ClaimType>
+            <ClaimType Id="objectIdNotFound">
+                <DisplayName>Used for comparison</DisplayName>
+                <DataType>string</DataType>
             </ClaimType>
             <ClaimType Id="Otp">
                 <DisplayName>Secondary One-time password</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
-            <ClaimType Id="sendGridReqBody">
-                <DisplayName>SendGrid request body</DisplayName>
+            <ClaimType Id="verificationEmailReqBody">
+                <DisplayName>SendGrid request body for verification email</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
             <ClaimType Id="VerificationCode">
@@ -54,7 +59,7 @@
                 <DataType>string</DataType>
                 <UserInputType>CheckboxMultiSelect</UserInputType>
                 <Restriction>
-                    <Enumeration Text="Agreed To Terms Of Service" Value="TOCv01" SelectByDefault="true" />
+                    <Enumeration Text="Agreed To Terms Of Service" Value="{Settings:termsAndCondition_currentVersionNo}" SelectByDefault="true" />
                 </Restriction>
             </ClaimType>
 
@@ -64,7 +69,7 @@
                 <DataType>string</DataType>
                 <UserInputType>CheckboxMultiSelect</UserInputType>
                 <Restriction>
-                    <Enumeration Text="Agreed To Test consent and privacy" Value="TCPv02" SelectByDefault="true" />
+                    <Enumeration Text="Agreed To Test consent and privacy" Value="{Settings:testConsentAndPrivacy_currentVersionNo}" SelectByDefault="true" />
                 </Restriction>
             </ClaimType>
 
@@ -100,21 +105,51 @@
 
         </ClaimsSchema>
 
+        <Predicates>
+            <Predicate Id="DOBDateRange" Method="IsDateRange" HelpText="The date of birth must be between 01-01-1900 and today.">
+                <Parameters>
+                    <Parameter Id="Minimum">1900-01-01</Parameter>
+                    <Parameter Id="Maximum">Today</Parameter>
+                </Parameters>
+            </Predicate>
+        </Predicates>
+
+        <PredicateValidations>
+            <PredicateValidation Id="DOBCustomDateRange">
+                <PredicateGroups>
+                    <PredicateGroup Id="DateRangeGroup">
+                        <PredicateReferences>
+                            <PredicateReference Id="DOBDateRange" />
+                        </PredicateReferences>
+                    </PredicateGroup>
+                </PredicateGroups>
+            </PredicateValidation>
+        </PredicateValidations>
+
         <ClaimsTransformations>
 
-            <ClaimsTransformation Id="GenerateSendGridRequestBody" TransformationMethod="GenerateJson">
+            <ClaimsTransformation Id="AssertObjectIdObjectIdNotFoundAreEqual" TransformationMethod="AssertStringClaimsAreEqual">
+                <InputClaims>
+                    <InputClaim ClaimTypeReferenceId="objectId" TransformationClaimType="inputClaim1" />
+                    <InputClaim ClaimTypeReferenceId="objectIdNotFound" TransformationClaimType="inputClaim2" />
+                </InputClaims>
+                <InputParameters>
+                    <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
+                </InputParameters>
+            </ClaimsTransformation>
+            <ClaimsTransformation Id="GenerateVerificationEmailSendGridRequestBody" TransformationMethod="GenerateJson">
                 <InputClaims>
                     <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.to.0.email" />
                     <InputClaim ClaimTypeReferenceId="otp" TransformationClaimType="personalizations.0.dynamic_template_data.otp" />
                     <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.dynamic_template_data.email" />
                 </InputClaims>
                 <InputParameters>
-                    <InputParameter Id="template_id" DataType="string" Value="d-83f9f8ed7a2a45bbb5ea99ad57d1f48c" />
-                    <InputParameter Id="from.email" DataType="string" Value="restore@abbott.com" />
-                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="Restore account email verification code" />
+                    <InputParameter Id="template_id" DataType="string" Value="{Settings:sendgrid.template_id}" />
+                    <InputParameter Id="from.email" DataType="string" Value="{Settings:sendgrid.from.email}" />
+                    <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="{Settings:sendgrid.personalizations.0.subject}" />
                 </InputParameters>
                 <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="sendGridReqBody" TransformationClaimType="outputClaim" />
+                    <OutputClaim ClaimTypeReferenceId="verificationEmailReqBody" TransformationClaimType="outputClaim" />
                 </OutputClaims>
             </ClaimsTransformation>
             <ClaimsTransformation Id="CopyPassword" TransformationMethod="CopyClaim">
@@ -150,36 +185,41 @@
 
         <ContentDefinitions>
             <ContentDefinition Id="api.selfasserted">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
             <ContentDefinition Id="api.localaccountsignup">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
             <ContentDefinition Id="api.localaccountsignin">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
             <ContentDefinition Id="api.localaccountpasswordreset">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
+            </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin.fp">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.unifiedssp.DataUri}</DataUri>
             </ContentDefinition>
             <!-- this should point to updateprofile.cshtml-->
             <ContentDefinition Id="api.selfasserted.profileupdate">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
             <!-- this should point to exception.cshtml-->
             <ContentDefinition Id="api.error">
-                <LoadUri>https://storageaccountrgdtsacd7.blob.core.windows.net/signin-page/selfAsserted.html</LoadUri>
-                <RecoveryUri>~/common/default_page_error.html</RecoveryUri>
-                <DataUri>urn:com:microsoft:aad:b2c:elements:contract:selfasserted:2.0.0</DataUri>
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
         </ContentDefinitions>
 
@@ -195,8 +235,23 @@
                 <Actions>
                     <Action Id="SendCode">
                         <ValidationClaimsExchange>
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp" />
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" ContinueOnError="false" ContinueOnSuccess="true" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGridRestfulProviderForEmailVerification">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
                         </ValidationClaimsExchange>
                     </Action>
                     <Action Id="VerifyCode">
@@ -225,9 +280,31 @@
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
+
         <ClaimsProvider>
             <DisplayName>One time password technical profiles</DisplayName>
             <TechnicalProfiles>
+
+                <TechnicalProfile Id="AAD-UserReadUsingEmailAddress-RaiseIfExists">
+                    <Metadata>
+                        <Item Key="Operation">Read</Item>
+                        <Item Key="RaiseErrorIfClaimsPrincipalDoesNotExist">false</Item>
+                    </Metadata>
+                    <IncludeInSso>false</IncludeInSso>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="signInNames.emailAddress" Required="true" />
+                    </InputClaims>
+                    <OutputClaims>
+                        <!-- Required claims -->
+                        <OutputClaim ClaimTypeReferenceId="objectId" DefaultValue="NOTFOUND" />
+                        <OutputClaim ClaimTypeReferenceId="objectIdNotFound" DefaultValue="NOTFOUND" AlwaysUseDefaultValue="true" />
+                    </OutputClaims>
+                    <OutputClaimsTransformations>
+                        <OutputClaimsTransformation ReferenceId="AssertObjectIdObjectIdNotFoundAreEqual" />
+                    </OutputClaimsTransformations>
+                    <IncludeTechnicalProfile ReferenceId="AAD-Common" />
+                </TechnicalProfile>
+
                 <TechnicalProfile Id="GenerateOtp">
                     <DisplayName>Generate one time password</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.OneTimePasswordProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
@@ -264,25 +341,25 @@
             </TechnicalProfiles>
         </ClaimsProvider>
         <ClaimsProvider>
-            <DisplayName>RestfulProvider</DisplayName>
+            <DisplayName>SendGridRestfulProviderForEmailVerification</DisplayName>
             <TechnicalProfiles>
-                <TechnicalProfile Id="SendGrid">
+                <TechnicalProfile Id="SendGridRestfulProviderForEmailVerification">
                     <DisplayName>Use SendGrid's email API to send the code the the user</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Metadata>
                         <Item Key="ServiceUrl">https://api.sendgrid.com/v3/mail/send</Item>
                         <Item Key="AuthenticationType">Bearer</Item>
                         <Item Key="SendClaimsIn">Body</Item>
-                        <Item Key="ClaimUsedForRequestPayload">sendGridReqBody</Item>
+                        <Item Key="ClaimUsedForRequestPayload">verificationEmailReqBody</Item>
                     </Metadata>
                     <CryptographicKeys>
                         <Key Id="BearerAuthenticationToken" StorageReferenceId="B2C_1A_SendGridSecret" />
                     </CryptographicKeys>
                     <InputClaimsTransformations>
-                        <InputClaimsTransformation ReferenceId="GenerateSendGridRequestBody" />
+                        <InputClaimsTransformation ReferenceId="GenerateVerificationEmailSendGridRequestBody" />
                     </InputClaimsTransformations>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="sendGridReqBody" />
+                        <InputClaim ClaimTypeReferenceId="verificationEmailReqBody" />
                     </InputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>

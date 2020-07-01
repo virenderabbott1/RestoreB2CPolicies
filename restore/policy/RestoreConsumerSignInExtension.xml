@@ -114,12 +114,12 @@ assigned to the AgreedToTOS button. If not selected, then "did not accept" value
         <TechnicalProfile Id="login-NonInteractive">
           <Metadata>
             <!--Sample action required: update the client_id and resource_id with your tenant's information-->
-            <Item Key="client_id">{Settings:ProxyIdentityExperienceFrameworkAppId}</Item>
-            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFrameworkAppId}</Item>
+            <Item Key="client_id">{Settings:ProxyIdentityExperienceFramework.AppId}</Item>
+            <Item Key="IdTokenAudience">{Settings:IdentityExperienceFramework.AppId}</Item>
           </Metadata>
           <InputClaims>
-            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFrameworkAppId}" />
-            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFrameworkAppId}" />
+            <InputClaim ClaimTypeReferenceId="client_id" DefaultValue="{Settings:ProxyIdentityExperienceFramework.AppId}" />
+            <InputClaim ClaimTypeReferenceId="resource_id" PartnerClaimType="resource" DefaultValue="{Settings:IdentityExperienceFramework.AppId}" />
           </InputClaims>
         </TechnicalProfile>
 
