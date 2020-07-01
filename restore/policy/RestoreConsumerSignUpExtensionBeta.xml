@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreConsumerSignUpExtension" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreConsumerSignUpExtension">
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreConsumerSignUpExtensionBeta" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreConsumerSignUpExtensionBeta">
     <BasePolicy>
         <TenantId>{Settings:Tenant}</TenantId>
-        <PolicyId>B2C_1A_RestoreConsumerBaseExtension</PolicyId>
+        <PolicyId>B2C_1A_RestoreConsumerBaseExtensionBeta</PolicyId>
     </BasePolicy>
 
     <BuildingBlocks>
@@ -49,9 +49,9 @@
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <!-- block this temporarily during testing - emailVerificationControl -->
-                    <DisplayClaims>
+                    <!-- <DisplayClaims>
                         <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
-                    </DisplayClaims>
+                    </DisplayClaims>-->
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
@@ -70,10 +70,10 @@
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <!-- block this temporarily during testing - emailVerificationControl -->
-                    <!-- <DisplayClaims>
+                    <DisplayClaims>
                         <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
                     </DisplayClaims>
-                    --><OutputClaims>
+                    <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email" Required="true" />
                     </OutputClaims>
                     <ValidationTechnicalProfiles>
@@ -250,7 +250,7 @@
                 </OrchestrationStep>
                 <OrchestrationStep Order="3" Type="ClaimsExchange">
                     <ClaimsExchanges>
-                        <ClaimsExchange Id="VerifyEmailStep" TechnicalProfileReferenceId="VerifyEmailStep" />
+                        <ClaimsExchange Id="VerifyEmailStep" TechnicalProfileReferenceId="VerifyEmailStep-CheckEmailAlreadyExists" />
                     </ClaimsExchanges>
                 </OrchestrationStep>
                 <OrchestrationStep Order="4" Type="ClaimsExchange">

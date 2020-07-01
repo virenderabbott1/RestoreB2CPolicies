@@ -8,7 +8,7 @@
     <BuildingBlocks>
         <ClaimsSchema>
             <ClaimType Id="welcomeEmailReqBody">
-                <DisplayName>SendGrid request body</DisplayName>
+                <DisplayName>SendGrid request body for welcome email</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
         </ClaimsSchema>
@@ -29,7 +29,7 @@
                 </OutputClaims>
             </ClaimsTransformation>
         </ClaimsTransformations>
-        
+
     </BuildingBlocks>
 
 
@@ -43,18 +43,42 @@
                     <Metadata>
                         <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
-                        <Item Key="language.button_continue">Verify Email</Item>                        
+                        <Item Key="language.button_continue">Verify Email</Item>
                     </Metadata>
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="email" />
                     </InputClaims>
                     <!-- block this temporarily during testing - emailVerificationControl -->
-                     <DisplayClaims>
+                    <DisplayClaims>
                         <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
-                    </DisplayClaims>                    
+                    </DisplayClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="email" Required="true" />
                     </OutputClaims>
+                </TechnicalProfile>
+            
+                <TechnicalProfile Id="VerifyEmailStep-CheckEmailAlreadyExists">
+                    <DisplayName>VerifyEmailStep</DisplayName>
+                    <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.SelfAssertedAttributeProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                    <Metadata>
+                        <Item Key="IpAddressClaimReferenceId">IpAddress</Item>
+                        <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
+                        <Item Key="language.button_continue">Verify Email</Item>
+                        <Item Key="UserMessageIfClaimsTransformationStringsAreNotEqual">There is another user with this email address</Item>
+                    </Metadata>
+                    <InputClaims>
+                        <InputClaim ClaimTypeReferenceId="email" />
+                    </InputClaims>
+                    <!-- block this temporarily during testing - emailVerificationControl -->
+                    <DisplayClaims>
+                        <DisplayClaim DisplayControlReferenceId="emailVerificationControl" />
+                    </DisplayClaims>
+                    <OutputClaims>
+                        <OutputClaim ClaimTypeReferenceId="email" PartnerClaimType="Verified.Email" Required="true" />
+                    </OutputClaims>
+                    <ValidationTechnicalProfiles>
+                        <ValidationTechnicalProfile ReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" />
+                    </ValidationTechnicalProfiles>
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
@@ -69,9 +93,6 @@
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
                         <Item Key="language.button_continue">Set Password</Item>
                     </Metadata>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" Required="true" />
-                    </InputClaims>
                     <DisplayClaims>
                         <DisplayClaim ClaimTypeReferenceId="newPassword" Required="true" />
                         <DisplayClaim ClaimTypeReferenceId="reenterPassword" Required="true" />
@@ -98,9 +119,6 @@
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
                         <Item Key="language.button_continue">Agree and Continue</Item>
                     </Metadata>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" Required="true" />
-                    </InputClaims>
                     <DisplayClaims>
                         <DisplayClaim ClaimTypeReferenceId="policyTOSversion" />
                     </DisplayClaims>
@@ -121,9 +139,6 @@
                         <Item Key="ContentDefinitionReferenceId">api.localaccountsignup</Item>
                         <Item Key="language.button_continue">Agree and Continue</Item>
                     </Metadata>
-                    <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="email" Required="true" />
-                    </InputClaims>
                     <DisplayClaims>
                         <DisplayClaim ClaimTypeReferenceId="policyTCPversion" />
                     </DisplayClaims>
@@ -139,49 +154,51 @@
                 <!--Sample: Provides a required Terms of Service Check-Box during sign-up-->
                 <TechnicalProfile Id="LocalAccountSignUpWithLogonEmail">
                     <Metadata>
-                        <Item Key="language.button_continue">Agree and Create Account</Item>
+                        <Item Key="language.button_continue">Create Account</Item>
                     </Metadata>
                     <DisplayClaims>
                         <DisplayClaim ClaimTypeReferenceId="givenName" Required="true" />
                         <DisplayClaim ClaimTypeReferenceId="surName" Required="true" />
-                        <DisplayClaim ClaimTypeReferenceId="extension_dateOfBirth" Required="true" />
+                        <DisplayClaim ClaimTypeReferenceId="extension_DOB" Required="true" />
                     </DisplayClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
-                        <OutputClaim ClaimTypeReferenceId="extension_dateOfBirth" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTOS" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_AgreedToTCP" Required="true" />
+                        <OutputClaim ClaimTypeReferenceId="extension_DOB" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="AgreedToTOS" DefaultValue="true" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="AgreedToTCP" DefaultValue="true" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="userRole" DefaultValue="Consumer" Required="true" />
                     </OutputClaims>
                     <ValidationTechnicalProfiles>
                         <ValidationTechnicalProfile ReferenceId="setDisplayNameFromFirstNameAndLastName"></ValidationTechnicalProfile>
-                    </ValidationTechnicalProfiles>                    
+                    </ValidationTechnicalProfiles>
                     <IncludeTechnicalProfile ReferenceId="AAD-Common" />
                 </TechnicalProfile>
 
                 <TechnicalProfile Id="setDisplayNameFromFirstNameAndLastName">
-                    <DisplayName>Unlink Facebook</DisplayName>
+                    <DisplayName>setDisplayNameFromFirstNameAndLastName</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.ClaimsTransformationProtocolProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <InputClaims>
-                      <InputClaim ClaimTypeReferenceId="givenName" />
-                      <InputClaim ClaimTypeReferenceId="surName" />
+                        <InputClaim ClaimTypeReferenceId="givenName" />
+                        <InputClaim ClaimTypeReferenceId="surName" />
                     </InputClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="givenName" Required="true" />
                         <OutputClaim ClaimTypeReferenceId="surName" Required="true" />
                     </OutputClaims>
                     <OutputClaimsTransformations>
-                      <OutputClaimsTransformation ReferenceId="CreateDisplayNameFromFirstNameAndLastName" />
+                        <OutputClaimsTransformation ReferenceId="CreateDisplayNameFromFirstNameAndLastName" />
                     </OutputClaimsTransformations>
                     <UseTechnicalProfileForSessionManagement ReferenceId="SM-Noop" />
-                  </TechnicalProfile>                 
+                </TechnicalProfile>
 
                 <!-- due to split screen on password, have to use this instead of from the base policy: notice the passwordText field-->
                 <TechnicalProfile Id="AAD-UserWriteUsingLogonEmail">
                     <PersistedClaims>
                         <PersistedClaim ClaimTypeReferenceId="passwordText" PartnerClaimType="password" />
-                        <PersistedClaim ClaimTypeReferenceId="extension_dateOfBirth" />
+                        <PersistedClaim ClaimTypeReferenceId="extension_DOB" />
                         <PersistedClaim ClaimTypeReferenceId="userRole" PartnerClaimType="userType" />
                         <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTOS" DefaultValue="{Settings:termsAndCondition_currentVersionNo}" />
                         <PersistedClaim ClaimTypeReferenceId="extension_AgreedToTCP" DefaultValue="{Settings:testConsentAndPrivacy_currentVersionNo}" />

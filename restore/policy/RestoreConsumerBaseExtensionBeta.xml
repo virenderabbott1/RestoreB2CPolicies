@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreConsumerBaseExtension" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreConsumerBaseExtension">
+<TrustFrameworkPolicy xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06" PolicySchemaVersion="0.3.0.0" TenantId="{Settings:Tenant}" PolicyId="B2C_1A_RestoreConsumerBaseExtensionBeta" PublicPolicyUri="http://{Settings:Tenant}/B2C_1A_RestoreConsumerBaseExtensionBeta">
     <BasePolicy>
         <TenantId>{Settings:Tenant}</TenantId>
         <PolicyId>B2C_1A_TrustFrameworkExtensions</PolicyId>
@@ -19,7 +19,7 @@
                 <AdminHelpText>The user's date of birth.</AdminHelpText>
                 <UserHelpText>Your date of birth.</UserHelpText>
                 <UserInputType>TextBox</UserInputType>
-                <!--<PredicateValidationReference Id="CustomDateRange" />-->
+                <!-- <PredicateValidationReference Id="CustomDateRange" />-->
             </ClaimType>
             <ClaimType Id="objectIdNotFound">
                 <DisplayName>Used for comparison</DisplayName>
@@ -29,8 +29,8 @@
                 <DisplayName>Secondary One-time password</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
-            <ClaimType Id="sendGridReqBody">
-                <DisplayName>SendGrid request body</DisplayName>
+            <ClaimType Id="verificationEmailReqBody">
+                <DisplayName>SendGrid request body for verification email</DisplayName>
                 <DataType>string</DataType>
             </ClaimType>
             <ClaimType Id="VerificationCode">
@@ -106,7 +106,7 @@
         </ClaimsSchema>
 
         <Predicates>
-            <Predicate Id="DateRange" Method="IsDateRange" HelpText="The date must be between 01-01-1900 and today.">
+            <Predicate Id="DOBDateRange" Method="IsDateRange" HelpText="The date of birth must be between 01-01-1900 and today.">
                 <Parameters>
                     <Parameter Id="Minimum">1900-01-01</Parameter>
                     <Parameter Id="Maximum">Today</Parameter>
@@ -115,11 +115,11 @@
         </Predicates>
 
         <PredicateValidations>
-            <PredicateValidation Id="CustomDateRange">
+            <PredicateValidation Id="DOBCustomDateRange">
                 <PredicateGroups>
                     <PredicateGroup Id="DateRangeGroup">
                         <PredicateReferences>
-                            <PredicateReference Id="DateRange" />
+                            <PredicateReference Id="DOBDateRange" />
                         </PredicateReferences>
                     </PredicateGroup>
                 </PredicateGroups>
@@ -137,7 +137,7 @@
                     <InputParameter Id="stringComparison" DataType="string" Value="ordinalIgnoreCase" />
                 </InputParameters>
             </ClaimsTransformation>
-            <ClaimsTransformation Id="GenerateSendGridRequestBody" TransformationMethod="GenerateJson">
+            <ClaimsTransformation Id="GenerateVerificationEmailSendGridRequestBody" TransformationMethod="GenerateJson">
                 <InputClaims>
                     <InputClaim ClaimTypeReferenceId="email" TransformationClaimType="personalizations.0.to.0.email" />
                     <InputClaim ClaimTypeReferenceId="otp" TransformationClaimType="personalizations.0.dynamic_template_data.otp" />
@@ -149,7 +149,7 @@
                     <InputParameter Id="personalizations.0.dynamic_template_data.subject" DataType="string" Value="{Settings:sendgrid.personalizations.0.subject}" />
                 </InputParameters>
                 <OutputClaims>
-                    <OutputClaim ClaimTypeReferenceId="sendGridReqBody" TransformationClaimType="outputClaim" />
+                    <OutputClaim ClaimTypeReferenceId="verificationEmailReqBody" TransformationClaimType="outputClaim" />
                 </OutputClaims>
             </ClaimsTransformation>
             <ClaimsTransformation Id="CopyPassword" TransformationMethod="CopyClaim">
@@ -204,6 +204,11 @@
                 <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
                 <DataUri>{Settings:contentdefinition.selfasserted.DataUri}</DataUri>
             </ContentDefinition>
+            <ContentDefinition Id="api.localaccountsignin.fp">
+                <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
+                <RecoveryUri>{Settings:contentdefinition.selfasserted.RecoveryUri}</RecoveryUri>
+                <DataUri>{Settings:contentdefinition.unifiedssp.DataUri}</DataUri>
+            </ContentDefinition>
             <!-- this should point to updateprofile.cshtml-->
             <ContentDefinition Id="api.selfasserted.profileupdate">
                 <LoadUri>{Settings:contentdefinition.selfasserted.LoadUri}</LoadUri>
@@ -230,9 +235,23 @@
                 <Actions>
                     <Action Id="SendCode">
                         <ValidationClaimsExchange>
-                            <!-- <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" ContinueOnError="false" ContinueOnSuccess="true" />-->
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp" />
-                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGrid" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="AAD-UserReadUsingEmailAddress-RaiseIfExists" ContinueOnError="false" ContinueOnSuccess="true" />
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="GenerateOtp">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
+                            <ValidationClaimsExchangeTechnicalProfile TechnicalProfileReferenceId="SendGridRestfulProviderForEmailVerification">
+                                <!--<Preconditions>
+                                    <Precondition Type="ClaimsExist" ExecuteActionsIf="true">
+                                        <Value>objectId</Value>
+                                        <Action>SkipThisOrchestrationStep</Action>
+                                    </Precondition>
+                                </Preconditions>-->
+                            </ValidationClaimsExchangeTechnicalProfile>
                         </ValidationClaimsExchange>
                     </Action>
                     <Action Id="VerifyCode">
@@ -302,7 +321,7 @@
                     </InputClaims>
                     <OutputClaims>
                         <OutputClaim ClaimTypeReferenceId="otp" PartnerClaimType="otpGenerated" />
-                    </OutputClaims>                    
+                    </OutputClaims>
                 </TechnicalProfile>
                 <TechnicalProfile Id="VerifyOtp">
                     <DisplayName>Verify one time password</DisplayName>
@@ -317,30 +336,30 @@
                     <InputClaims>
                         <InputClaim ClaimTypeReferenceId="email" PartnerClaimType="identifier" />
                         <InputClaim ClaimTypeReferenceId="verificationCode" PartnerClaimType="otpToVerify" />
-                    </InputClaims>                    
+                    </InputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>
         </ClaimsProvider>
         <ClaimsProvider>
-            <DisplayName>RestfulProvider</DisplayName>
+            <DisplayName>SendGridRestfulProviderForEmailVerification</DisplayName>
             <TechnicalProfiles>
-                <TechnicalProfile Id="SendGrid">
+                <TechnicalProfile Id="SendGridRestfulProviderForEmailVerification">
                     <DisplayName>Use SendGrid's email API to send the code the the user</DisplayName>
                     <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
                     <Metadata>
                         <Item Key="ServiceUrl">https://api.sendgrid.com/v3/mail/send</Item>
                         <Item Key="AuthenticationType">Bearer</Item>
                         <Item Key="SendClaimsIn">Body</Item>
-                        <Item Key="ClaimUsedForRequestPayload">sendGridReqBody</Item>
+                        <Item Key="ClaimUsedForRequestPayload">verificationEmailReqBody</Item>
                     </Metadata>
                     <CryptographicKeys>
                         <Key Id="BearerAuthenticationToken" StorageReferenceId="B2C_1A_SendGridSecret" />
                     </CryptographicKeys>
                     <InputClaimsTransformations>
-                        <InputClaimsTransformation ReferenceId="GenerateSendGridRequestBody" />
+                        <InputClaimsTransformation ReferenceId="GenerateVerificationEmailSendGridRequestBody" />
                     </InputClaimsTransformations>
                     <InputClaims>
-                        <InputClaim ClaimTypeReferenceId="sendGridReqBody" />
+                        <InputClaim ClaimTypeReferenceId="verificationEmailReqBody" />
                     </InputClaims>
                 </TechnicalProfile>
             </TechnicalProfiles>
