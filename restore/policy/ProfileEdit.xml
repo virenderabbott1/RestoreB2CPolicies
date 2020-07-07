@@ -13,7 +13,7 @@
     <DefaultUserJourney ReferenceId="ProfileEdit" />
 
     <UserJourneyBehaviors>
-      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="{Settings:InstrumentationKey}" DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
+      <JourneyInsights TelemetryEngine="ApplicationInsights" InstrumentationKey="{Settings:InstrumentationKey}" DeveloperMode="true" ClientEnabled="true" ServerEnabled="true" TelemetryVersion="1.0.0" />
     </UserJourneyBehaviors>
 
     <TechnicalProfile Id="PolicyProfile">

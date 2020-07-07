@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "mspOfferName": {
+            "value": "Azure AD B2C Managed Services"
+        },
+        "mspOfferDescription": {
+            "value": "Enables Azure Monitor in Azure AD B2C"
+        },
+        "rgName": {
+            "value": "rg-dts-restore-ad-b2c-monitor"
+        },
+        "managedByTenantId": {
+            "value": "324a427b-2aa6-4a2f-a11d-7694a1f8ab08"
+        },
+        "authorizations": {
+            "value": [
+                {
+                    "principalId": "118c238c-f9a4-4e7c-a465-ce21b84720f5",
+                    "principalIdDisplayName": "Azure AD B2C tenant administrator",
+                    "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+                }
+            ]
+        }
+    }
+}
